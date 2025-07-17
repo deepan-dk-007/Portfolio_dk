@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="description" content="DK's Catch me if you can game using Javascript">
+    <meta name="keywords" content="HTML,CSS,Javascript">
+    <meta name="author" content="dk">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>DK WEBZ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <script src="https://kit.fontawesome.com/9cf6c4f5c5.js" crossorigin="anonymous"></script>
+  <title>Dk WEBZ</title>
+  <style> 
+  *{ 
+margin: 0;
+  padding: 0;
+  text-decoration: none;
+  box-sizing: border-box;
+  --transition: all 0.3s linear;
+}
+.micon {
+  display: inline-block;
+  padding: 0;
+  cursor: pointer;
+  position:fixed;
+  margin-top: 30px;
+  margin-left: 20px;
+  font-size: 30px;
+  color: #ffffff;
+  z-index: 3000;
+  border-radius: 2%;
+}
+.micon:hover {
+  background-color: #706c6c;
+  width: 20px;
+}
+.mbar {
+  position: fixed;
+  z-index: 3000;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  width: 220px;
+  height: 50%;
+  padding: 0;
+  transition: left 0.3s ease;
+  background-color: #000000;
+}
+
+.mbar.open {
+  left: 0;
+}
+
+.mitems {
+  top: 0;
+  left: 0;
+  list-style: none;
+}
+
+.mitems li {
+  border-top: 1px solid;
+}
+
+.mbar a {
+  display: block;
+  margin: 15px 0;
+  color: white;
+}
+
+.mbar a:hover {
+  color: #fffefe;
+  padding: 5px;
+  transition: 0.3s linear;
+}
+
+.mbar li:hover {
+  background: linear-gradient(140deg,rgb(184, 16, 226),violet);
+}
+
+.sp {
+  display: inline-block;
+  font-size: 30px;
+  margin-left: 85%;
+  cursor: pointer;
+  width: 0;
+  padding: 10px 0;
+  color: #ffffff;
+  background-color: red;
+}
+
+.sp:hover {
+  color: red;
+}
+
+.fun {
+  color: rgba(155, 147, 147, 0.993);
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+}
+li {
+  padding-left: 15px;
+  border-style: solid;
+  border-width: 1px;
+  border-left: 0;
+  border-right: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+    body {
+      margin: 0;
+      width: 100%;
+      height:100vh;
+      background: linear-gradient(45deg,rgb(172, 17, 138), #ffe0e0, #e0f7ff);
+      font-family: 'Comic Sans MS', cursive;
+    }
+    .nav{
+      margin: 0px;
+      padding: 30px;
+      background-color: black;
+      z-index: 1000;
+      
+    }
+   h1{
+    margin-left: 10%;
+    font-size: 30px;
+    background-color: black;
+    color: rgb(176, 17, 182);
+      text-shadow: 2px 2px #000;
+   }
+    #catch-btn {
+      position: absolute;
+      padding: 20px 40px;
+      font-size: 20px;
+      background-color: #ff1493;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      animation: shake 0.5s infinite;
+      left: 100px;
+      top: 300px;
+    }
+    #catch-btn:active{
+      background-color: aqua;
+    }
+    #play-again {
+      display: none;
+      position: absolute;
+      top: 400px;
+      left: 100px;
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      25% { transform: translate(-1px, -2px) rotate(-1deg); }
+      50% { transform: translate(-3px, 0px) rotate(1deg); }
+      75% { transform: translate(3px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -1px) rotate(-1deg); }
+    }
+    #level-select {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000;
+      color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .level-btn {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      z-index: 4000;
+      border-radius: 5px;
+    }
+    #message{
+      position: absolute;
+      text-align: center;
+      padding: 50px;
+      top: 80px;
+      font-size: 28px;
+      font-weight: bold;
+      color: rgb(252,250,250);
+      text-shadow: 2px 2px #000;
+    }
+  </style>
+</head>
+<body>
+  <section id="#h">
+  <label class="micon">
+<i class="fa fa-bars"></i></label>
+ <nav class="mbar" role="navigation">
+        <label class="fun">
+            <h2>DK WEBZ</h2>
+        </label>
+        <label class="sp">x</label>
+        <ul class="mitems">
+            <li><a class="mn" href="#h">Home</a></li>
+            <li><a class="mn" href="#a">About</a></li>
+            <li><a class="mn" href="#r">Rules</a></li>
+        </ul>
+    </nav>
+<div class="nav"><h1>DK WEBZ</h1></div>
+  <div id="message">Catch me if you can!</div>
+  <button id="catch-btn">
+    ('-')
+  </button>
+  </section>
+  <div id="level-select">
+    <h2>Select Level</h2>
+    <button class="level-btn" data-level="easy" style="background:#4caf50;">Easy</button>
+    <button class="level-btn" data-level="medium" style="background:#ff9800;">Medium</button>
+    <button class="level-btn" data-level="hard" style="background:#f44336;">Hard</button>
+  </div>
+  <button id="play-again">Play Again</button>
+
+  <script>
+    const mi=document.querySelector('.micon');
+    const si=document.querySelector('.mbar');
+    const cbtn=document.querySelector('.sp');
+mi.addEventListener('click',() =>{
+  si.classList.toggle('open');
+});
+cbtn.addEventListener('click',() =>{
+  si.classList.remove('open');
+});
+
+
+    const btn = document.getElementById("catch-btn");
+    const msg = document.getElementById("message");
+    const playAgainBtn = document.getElementById("play-again");
+    const levelSelect = document.getElementById("level-select");
+    const levelButtons = document.querySelectorAll(".level-btn");
+
+    let level = "easy";
+    let caught = false;
+    let speedBoost = 0;
+
+    // Handle level selection
+    levelButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        level = button.dataset.level;
+        levelSelect.style.display = "none";
+
+        // Adjust button size for level
+        if (level === "easy") {
+          btn.style.width = "auto";
+        } else if (level === "medium") {
+          btn.style.width = "120px";
+          btn.style.height="120px";
+        } else if (level === "hard") {
+          btn.style.width = "80px";
+          btn.style.height="80px";
+        }
+      });
+    });
+
+    function randomColor() {
+      const colors = ["#ffeb3b", "#8bc34a", "#03a9f4", "#ff5722", "#e91e63"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function runAway() {
+      if (caught) return;
+
+      const maxX = window.innerWidth - btn.offsetWidth - 1;
+      const maxY = window.innerHeight - btn.offsetHeight - 1;
+
+      const newX = Math.random() * maxX;
+      const newY = Math.random() * maxY;
+      const angle = Math.random() * 360;
+
+      btn.style.left = `${newX}px`;
+      btn.style.top = `${newY}px`;
+      btn.style.transform = `rotate(${angle}deg)`;
+      document.body.style.background = randomColor();
+
+      speedBoost += 0.001;
+
+      if (level === "medium") {
+        speedBoost += 0.05;
+      } else if (level === "hard") {
+        speedBoost += 0.1;
+        btn.style.width = `${btn.offsetWidth * 0.9}px`; // shrink on hard
+      }
+
+      const speed = Math.max(0.02, 0.3 - speedBoost);
+      btn.style.transition = `all ${speed}s ease`;
+    }
+
+    btn.addEventListener("mouseover", runAway);
+    btn.addEventListener("touchstart", runAway);
+
+    btn.addEventListener("click", () => {
+      caught = true;
+      msg.textContent = "You actually caught me! (-_-)";
+      btn.textContent = "You Win!";
+      btn.style.backgroundColor = "#4caf50";
+      btn.style.animation = "none";
+      document.body.style.background = "#b2ff59";
+      playAgainBtn.style.display = "block";
+    });
+
+    playAgainBtn.addEventListener("click", () => {
+      location.reload();
+    });
+  </script>
+</body>
+</html>
