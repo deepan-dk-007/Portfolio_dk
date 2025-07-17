@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="dk webz">
+    <meta name="keywords" content="HTML,CSS,Javascript">
+    <meta name="author" content="dk">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>DK WEBZ</title>
+    <link rel="icon" href="images/dklogo.webp">
+    <link rel="icon" href="images/dkicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <script src="https://kit.fontawesome.com/9cf6c4f5c5.js" crossorigin="anonymous"></script>
+    <link href="https://www.instagram.com/">
+   <!--<link rel="stylesheet" href="port.css">-->
+   <style>
+    *{ 
+margin: 0;
+  padding: 0;
+  text-decoration: none;
+  box-sizing: border-box;
+  --transition: all 0.3s linear;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+.lt h1{
+  color: #0A192F;
+}
+.lt footer,.lt button{
+  background-color: grey;
+}
+.lt img{
+   filter: brightness(100%) invert(-0%);
+}
+.lt #h,
+.lt h3,
+.lt .an,
+.lt #a,
+.lt #r,
+.lt #s,
+.lt #c,
+.lt #p,
+.lt #t,
+.lt #m,
+.lt #b {
+  background-color:white;
+  color:black;
+}
+#p p{
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+/*--------------------------------------------*/
+body {
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #0A192F;
+}
+
+section {
+  padding: 80px 20px;
+}
+
+p {
+  text-align: left;
+  align-content: space-between;
+}
+
+hr {
+  margin: 5%;
+  border: 1px solid black;
+  width: 100%;
+  margin-left: 0;
+}
+
+h1 {
+  text-align: center;
+  color: #5affd8;
+  margin-bottom: 20px;
+}
+
+h2 {
+  background-color: black;
+}
+
+h3 {
+  color: #64FFDA;
+}
+
+h5 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+u {
+  text-decoration: underline blue;
+  color: blue;
+}
+
+img {
+  position: relative;
+  mix-blend-mode: multiply;
+  filter: brightness(100%) invert(200%);
+  background: #0A192F;
+}
+
+/* ------------------------------ */
+/* Animations */
+/* ------------------------------ */
+@keyframes shine {
+  from {
+    background-position: -200% 0;
+  }
+
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounce {
+  from {}
+
+  to {
+    transform: translateY(1px);
+    transform: translateY(-15px);
+  }
+}
+
+/* ------------------------------ */
+/* Navbar */
+/* ------------------------------ */
+.navbar {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  background: #000;
+  z-index: 2000;
+  padding: 25px;
+}
+
+.logo {
+  margin-left: 40px;
+  font-size: 25px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  background: linear-gradient(100deg, red 90%, rgb(253, 251, 251));
+  background-size: 200%;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  cursor: pointer;
+  animation: shine 2s linear infinite;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.an {
+  color: rgba(255, 255, 255, 0.993);
+  cursor: pointer;
+  padding-right: 10px;
+}
+
+.an:hover {
+  color: transparent;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  background: linear-gradient(red, orange, rgb(255, 2, 2), green);
+  background-clip: text;
+  padding: 1px;
+  transition: 0.00001s linear;
+}
+
+/* ------------------------------ */
+/* Buttons */
+/* ------------------------------ */
+button {
+  background-color: #706c6c;
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 5px 20px;
+}
+
+/* ------------------------------ */
+/* Home Section */
+/* ------------------------------ */
+.pdk img {
+  width: 100%;
+  height: auto;
+  border-radius: 100%;
+}
+
+.pdk {
+  display: inline-block;
+  margin-top: 20%;
+}
+
+.hdk {
+  display: inline-block;
+  font-size: 26px;
+  position: absolute;
+  top: 160px;
+  right: 10%;
+  left: 10%;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  background: linear-gradient(142deg, black, white, black);
+  background-size: 200%;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shine 3s linear infinite;
+  cursor: pointer;
+  text-align: center;
+}
+
+.ao {
+  position: absolute;
+  top: 340px;
+  left: 50%;
+  right: 5%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.ao div {
+  border-radius: 5px;
+  padding: 1px;
+  color: white;
+  font-size: 20px;
+  background-color: rgba(18, 18, 19, 0.397);
+  margin-right: 1px;
+}
+
+.ao p {
+  color: white;
+}
+
+.ao a {
+  color: white;
+}
+
+#h {
+  display: flex;
+}
+.ao i{
+  border-radius:100% ;
+}
+.hbt1{
+display: inline;
+position: absolute;
+top: 250px;
+left: 40px;
+}
+.hbt2{
+display: inline;
+position: absolute;
+top: 250px;
+right: 40px;
+}
+.hbt1,.hbt2{
+  color:#1dbd97;
+  background:linear-gradient(142deg,rgb(58, 2, 58),rgba(187, 64, 236, 0.233),rgba(26, 0, 26, 0.466),rgba(57, 5, 82, 0.897)) ;
+  background-size: 200%;
+  animation: shine 3s linear infinite;
+  cursor: pointer;
+  font-size: 8px;
+  padding-left: 3px;
+  padding-right:3px;
+  text-size-adjust:110%;
+}
+
+/* ------------------------------ */
+/* Hover Animations */
+/* ------------------------------ */
+.a1:hover,
+.a2:hover,
+.a3:hover,
+.a4:hover {
+  padding: 2px;
+  transition: 0.3s linear ease;
+  cursor: pointer;
+}
+
+/* ------------------------------ */
+/* Menu & Sidebar */
+/* ------------------------------ */
+.micon {
+  display: inline-block;
+  padding: 0;
+  cursor: pointer;
+  background-color: rgb(255, 255, 255);
+  position: fixed;
+  z-index: 3000;
+  left: 20px;
+  top: 41px;
+  border-radius: 2%;
+}
+
+.micon:hover {
+  background-color: #706c6c;
+  width: 20px;
+}
+
+.micon div {
+  width: 25px;
+  height: 5px;
+  background: #000000;
+  margin: 2px 0;
+}
+
+.mbar {
+  position: fixed;
+  z-index: 3000;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  width: 220px;
+  height: 50%;
+  padding: 0;
+  transition: left 0.3s ease;
+  background-color: #000000;
+}
+
+.mbar.open {
+  left: 0;
+}
+
+.mitems {
+  top: 0;
+  left: 0;
+  list-style: none;
+}
+
+.mitems li {
+  border-top: 1px solid;
+}
+
+.mbar a {
+  display: block;
+  margin: 15px 0;
+  color: white;
+}
+
+.mbar a:hover {
+  color: #fffefe;
+  padding: 5px;
+  transition: 0.3s linear;
+}
+
+.mbar li:hover {
+  background: linear-gradient(140deg, white, black, gray);
+}
+
+.sp {
+  display: inline-block;
+  font-size: 30px;
+  margin-left: 85%;
+  cursor: pointer;
+  width: 0;
+  padding: 10px 0;
+  color: #ffffff;
+  background-color: red;
+}
+
+.sp:hover {
+  color: red;
+}
+
+.fun {
+  color: rgba(155, 147, 147, 0.993);
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.nlinks {
+  display: none;
+  position: absolute;
+  margin-top: 8%;
+}
+
+li {
+  background-color: rgb(0, 0, 0);
+  padding-left: 15px;
+  border-style: solid;
+  border-width: 1px;
+  border-left: 0;
+  border-right: 0;
+}
+
+/* ------------------------------ 
+----------- Sections 
+/* ------------------------------ */
+#a,
+#r,
+#s,
+#p,
+#t,
+#m,
+#b {
+  width: 100%;
+  height: auto;
+}
+
+.ab {
+  height: 100px;
+  width: 200px;
+  margin-left: 35%;
+}
+
+.adk {
+  margin-left: 25%;
+  margin-bottom: 5%;
+}
+
+.sn {
+  list-style-type: circle;
+  padding: 20px;
+  border: none;
+}
+
+.sn li {
+  margin-bottom: 10px;
+  border-bottom: 2px solid black;
+  background-color: rgb(0, 0, 0);
+}
+
+#c {
+  height: auto;
+  width: 100%;
+  justify-content: center;
+}
+
+.f1 {
+  display: inline;
+  padding: 8px;
+  border-radius: 100%;
+  margin-left: 5%;
+  margin-right: 2%;
+  cursor: pointer;
+}
+
+.f1:hover {
+  padding: 3px;
+  transition: 0.3s linear;
+}
+
+.fi {
+  border-radius: 20px;
+  padding: 15px;
+  padding-right: 30%;
+  margin-top: 5%;
+}
+
+.f1 a {
+  color: black;
+  border-radius: 100%;
+}
+.f1 i{
+  border-radius: 100%;
+}
+.empty {
+  padding: 20px;
+}
+
+.fs {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  margin-left: 5%;
+  margin-top: 10px;
+  margin-bottom: 40px;
+  border-radius: 20px;
+}
+
+footer {
+  background-color: #706c6c;
+  padding-top: 1px;
+  padding-bottom: 10px;
+  cursor: pointer;
+}
+
+/*NAVBAR*/
+.logo {
+  background: linear-gradient(120deg, #64FFDA, #FFFFFF);
+  color: transparent;
+  background-clip: text;
+}
+
+/* Links */
+.an {
+  color: #CCD6F6;
+}
+
+.an:hover {
+  background: linear-gradient(90deg, #64FFDA, #FFFFFF);
+  background-clip: text;
+  color: transparent;
+}
+
+/* Sections */
+#h {
+  background-color: #0a192f;
+}
+
+#a,
+#r,
+#s,
+#c,
+#p,
+#t,
+#m,
+#b {
+  background-color: #112240;
+  color: #CCD6F6;
+}
+
+/* Skills list item */
+.sn {
+  background-color: #0A192F;
+  color: #CCD6F6;
+}
+
+/* Buttons */
+button,
+.fs {
+  background-color: #64FFDA;
+  color: #0A192F;
+}
+
+.f1 {
+  background-color:transparent;
+  font-size: 30px;
+  margin-left: 2px;
+}
+
+
+.tech{
+  text-align: center;
+  font-size: 25px ;
+  margin-top: 10%;
+}
+.tech i{
+
+  margin-left: 10px;
+  padding: 30px;
+  display: inline-flex;
+  animation: bounce 2s infinite alternate;
+}
+.tech i:hover{
+   font-size: 45px;
+   transition: 0.3s linear ;
+}
+
+/* Sidebar menu */
+
+.mbar a {
+  color: #CCD6F6;
+}
+
+.mbar li:hover {
+  background: linear-gradient(120deg, #64FFDA, #0A192F);
+}
+
+footer {
+  background-color: #0A192F;
+  color: #CCD6F6;
+}
+
+   </style>
+</head>
+<body class="Roboto">
+    <label class="micon">
+        <div></div>
+        <div></div>
+    </label>
+    <div class="navbar">
+        <div class="logo">DK WEBZ</div>
+        <div class="nlinks">
+            <a class="an" href="#h">Home </a>|
+            <a class="an" href="#a">About </a>|
+            <a class="an" href="#r">Resume </a>|
+            <a class="an" href="#s">Skills</a>|
+            <a class="an" href="#p">Projects</a>|
+            <a class="an" href="#c">Contact </a>
+        </div>
+    </div>
+    <nav class="mbar" role="navigation">
+        <label class="fun">
+            <h2>DK WEBZ</h2>
+        </label>
+        <button class="tb">Light</button>
+        <label class="sp">x</label>
+        <ul class="mitems">
+            <li><a class="mn" href="#h">Home</a></li>
+            <li><a class="mn" href="#a">About</a></li>
+            <li><a class="mn" href="#t">Tech Stack</a></li>
+             <li><a class="mn" href="#s">Skills</a></li>
+             <li><a class="mn" href="#p">Projects</a></li>
+            <li><a class="mn" href="#r">Resume</a></li>
+            <li><a class="mn" href="#b">Blog</a></li>
+            <li><a class="mn" href="#c">Contact</a></li>
+        </ul>
+    </nav>
+    <section id="h" data-aos="fade-up">
+        <!-- <input  class="search" type="search" placeholder="search the content">-->
+        <div class="pdk"><img
+                src="https://cdn.dribbble.com/userupload/21352114/file/original-6b6e7f9dbf8e9ee2835018de14575f0d.png?resize=752x564&vertical=center"
+                alt="No image"></div>
+        <div class="hdk" data-aos="fade-right">DEEPAN<br>KARTHICK</div>
+       <a href="#c" ><button data-aos="fade-right" class="hbt1"><h3>Contact me</h3></button></a><a href="#p"><button data-aos="fade-left" class="hbt2"><h3>See My Work</h3></button></a>
+        <div class="ao">
+            <div class="a1"><a href="https://www.instagram.com/"><i style="color: rgb(240, 56, 111);" class="fa-brands fa-instagram"></i></a></div>
+            <div class="a2"><a href="https://www.facebook.com/"><i style="color: blue;background-color: white;" class="fa-brands fa-facebook"> </i></a></div>
+            <div class="a3"><a href="https://x.com/Itz_me_dk__/photo/"><i style="color: rgb(134, 120, 120);" class="fa-brands fa-x-twitter"></i></a></div>
+            <div  class="a4"><a  href="https://in.linkedin.com/in/deepan-karthick-183116371/"><i
+              style="color:darkblue;background:linear-gradient(transparent,white,white,white,transparent);" class="fa-brands fa-linkedin"></i></a></div>
+            <p style="position: absolute;color: rgb(196, 187, 187); font-size: 10px;top: -30px;text-align: center;">Aspiring software developer |<br>ECE Student | IOT Enthusiast</p>
+        </div>
+    </section>
+    <section id="a">
+        <hr>
+        <div data-aos="fade-right">
+            <h1>About</h1>
+            <img class="adk"
+                src="https://cdn.dribbble.com/userupload/21352114/file/original-6b6e7f9dbf8e9ee2835018de14575f0d.png?resize=752x564&vertical=center"
+                alt="image" style="width: 150px;height:150px; border-radius: 50%; filter: none;">
+            <p>
+                Hello! I'm Deepan karthick S, an Electronics and Communication Engineering Student at Sethu Institute of
+                Technology. I have a keen interest in software development ,Web design ,and IOT-based solution.
+            </p>
+            <br>
+            <p>
+                I'm currently Know c,c++,java,Python,HTML,css and JavaScript. I enjoy turning ideas into real-world
+                projects and constantly improving my technical skills to build a succsesful Career in the software
+                industry.
+            </p>
+            <br>
+            <p>
+                outside of coding, I love exploring new Technologies ,working on hardware projects, and Participating in
+                symposiums to learn and grow.
+            </p>
+        </div>
+    </section>
+    <section id="t">
+      <hr>
+         <h1>Tech Stack</h1>
+         <div class="tech" data-aos="fade-down">
+          <i class="fa-brands fa-html5 fa-3x" style="color:#E34F26;"></i>
+          <i class="fa-brands fa-css3-alt fa-3x" style="color:#1572B6;"></i>
+          <i class="fa-brands fa-js-square fa-3x" style="color:yellow;"></i>
+          <i class="fa-brands fa-python fa-3x" style="color:#3776AB;"></i>
+          <i class="fa-brands fa-java fa-3x" style="color: #007396;"></i>
+          <i class="fa-solid fa-microchip fa-3x" style="color: #4CAF50;"></i>
+          <i id="no" class="fa-brands fa-c fa-3x" style="color:rgb(33, 170, 194);"></i>
+         </div>
+    </section>
+    <section id="s">
+        <hr>
+        <div data-aos="fade-left">
+            <h1>Skills</h1>
+            <ul class="snn">
+                <li class="sn">Web Technologies: HTML , CSS, JavaScript</li>
+                <li class="sn">Tools & Platforms: Arduino IDE, IoT development, vs code</li>
+                <li class="sn">programming Languages: C ,C++ , java , python</li>
+                <li class="sn">interest in creating hardware-software integrated projects</li>
+            </ul>
+        </div>
+    </section>
+    <section id="p">
+  <hr>
+  <div data-aos="fade-left">
+    <h1>Projects</h1>
+
+    <h3>Object Avoiding Rover</h3>
+    <p>A smart robot car that detects obstacles using an ultrasonic sensor and changes direction automatically. Built with Arduino, ultrasonic sensor, and motor driver module.</p>
+    <video width="300" height="200" controls>
+      <source src="images/rover.mp4" type="video/mp4">
+      <a href="http://127.0.0.1:5500/dkport/images/rover.mp4"download>Download</a>
+    </video>
+<hr>
+    <h3>Bluetooth Rover</h3>
+    <p>A small rover controlled wirelessly using a Bluetooth module (HC-05) and Arduino Uno. Learned wireless communication and motor control.</p>
+      <video width="300" height="200" controls>
+      <source src="images/bluetooth">
+    </video>
+    <hr>
+
+    <h3>Voice Emergency System</h3>
+    <p>A prototype that triggers an emergency alert using basic voice commands. Integrated Arduino with a voice input module.</p>
+     <video width="300" height="200" controls>
+      <source src="images/dooo">
+    </video>
+    <hr>
+    <h3>Agricultural Rover</h3>
+    <p>A science project featuring an agricultural rover for spraying and soil monitoring. Prototype was featured in the local newspaper on Science Day 2024.</p>
+     <img width="300" height="200" src="images/dknews.jpg">
+    <hr>
+    <h3>Game Website</h3>
+    <p>A simple interactive game built with HTML, CSS, and JavaScript. Practiced DOM manipulation and logic building.</p>
+    <iframe width="300" height="200" src="web3.html"></iframe>
+    <hr>
+    <h3>Calculator Website</h3>
+    <p>A basic online calculator that performs add, subtract, multiply, and divide operations. Made with HTML, CSS, and JavaScript.</p>
+      <iframe width="300" height="200" src="calculator.html"download></iframe>
+    <hr>
+    <h3>Notes/To-Do Website</h3>
+    <p>A web app for taking notes and managing tasks. Demonstrates CRUD operations using JavaScript.</p>
+     <iframe width="300" height="200" src="note.html"download></iframe>
+    <hr>
+    <h3>Personal Portfolio Website</h3>
+    <p>This website itself — designed and developed by me using HTML, CSS, and JavaScript. Features animations, contact form, and my resume.</p>
+  </div>
+    </section>
+    <section id="r">
+        <hr>
+        <div data-aos="zoom-in">
+            <h1>resume</h1>
+            <p>
+                <b>Name</b> ---: Deepan Karthick S<br>
+                <b>Phone</b>---: 9865411677<br>
+                <b>Email</b>----: deepan2007sk@gmail.com<br>
+                <b>Address:</b> Madurai<br>
+                <hr>
+                <br>
+            <h3> Career Objective:</h3><br><br>
+            Aspiring software developer and first-year engineering student with a strong passion for
+            programming and web development. Eager to enhance technical skills and gain industry experience
+            to contribute effectively to a top-tier software company.
+            <hr><br>
+            <h3>Education:</h3><br><br>
+            B.E. in Electronics and Communication Engineering <br>
+            Sethu Institute of Technology (Autonomous) <br>
+            2024 - 2028 <br>
+            <hr><br>
+            <h3>Skills:</h3><br><br>
+            Programming Languages: C, C++, Java, Python <br>
+            Web Technologies: HTML, CSS, JavaScript <br>
+            Tools & Platforms: Arduino IDE, IoT, Visual Studio Code <br>
+            <hr><br>
+            <h3>Projects:</h3> <br><br>
+            Object Avoiding Rover <br>
+            - Built a smart rover that automatically detects and avoids obstacles using sensors. <br>
+            - Technologies Used: Arduino, Ultrasonic Sensor, IoT. <br>
+            <hr><br>
+            <h3>Certifications & Achievements:</h3><br><br>
+            - Completed certified courses in C, C++, and Core Java <br>
+            - Participated and won in various symposiums and technical events <br>
+            - Received multiple academic and co-curricular awards during school years. <br>
+            <hr><br>
+            <h3>Languages Known:</h3> <br><br>
+            Tamil (Fluent) <br>
+            English (Fluent) <br>
+            Hindi (Reading) <br>
+            </p>
+            <br>
+            <hr>
+            <p>You can view or download my detailed resume below.</p>
+            <a style="color: blue;" href="images/dk_res.pdf" download>Download Resume here</a>
+        </div>
+        <hr>
+    </section>
+   <!--<section id="m" data-aos="fade-up">
+      <hr>
+      <h1>Testimonials</h1>
+      <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Perferendis, qui.</p>
+    </section>-->
+    <section id="b" style="padding-bottom: 10px;">
+      <hr>
+      <h1>Blog</h1>
+      <p>Welcome to my blog! Here,I plan to share my learnings, projcts,and tips on programming, IoT,and web development.</p>
+      <div style="margin-top: 20px;">
+        <h3>Comming soon!</h3>
+        <p>I'm currently working on my first blog posts -stay tuned for tutorials and projcts walkthorughs!</p>
+      </div>
+    </section>
+    <section id="c">
+        <hr>
+        <div data-aos="fade-up">
+            <h1>contact</h1>
+            <p>you can contact with mail or social Platforms</p>
+            <form id="cont">
+                <input name="name" class="fi" type="text" placeholder="Enter Your Name">
+                <br>
+                <input name="email" class="fi" type="email" placeholder="Enter Your Mail">
+                <br>
+                <textarea name="message" class="fi" placeholder="Enter Your Message"></textarea>
+                <br>
+                <button class="fs" type="submit">send</button><button class="fs" type="reset">reset</button>
+            </form>
+        </div>
+        <hr>
+        <div data-aos="fade-right">
+            <h1>DEEPAN<br> KARTHICK</h1>
+            <div class="f1"><a href="https://www.instagram.com/"><i style="color:rgb(240, 56, 111);" class="fa-brands fa-instagram"></i></a></div>
+            <div class="f1"><a href="https://www.facebook.com/"><i style="color: blue;background-color: white;" class="fa-brands fa-facebook"></i></a></div>
+            <div class="f1"><a href="https://twitter.com/?lang=en-in"><i style="color: black;" class="fa-brands fa-x-twitter"></i></a></div>
+            <div class="f1"><a href="https://in.linkedin.com/deepan-karthick-183116371/"><i
+              style="color: blue; background-color: white;background:linear-gradient(transparent,white,white,white,transparent);"  class="fa-brands fa-linkedin"></i></a></div>
+            <div class="f1"><a href="https://github.com/"><i style="color: #000;background-color: white;" class="fa-brands fa-github"></i></a></div>
+            <div class="empty"></div>
+        </div>
+        <hr>
+    </section>
+    <footer>
+        <h5><b>copyright</b> DK's portfolio <u>All Rights reserved</u></h5>
+        <h5>Designed By <mark>DK</mark></h5>
+    </footer>
+    <!--script-->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function () {
+            emailjs.init("aYjybyQoHpDeZ10R-");
+        })();
+    </script>
+
+    <script>
+        const mi = document.querySelector('.micon');
+        const si = document.querySelector('.mbar');
+        const cbtn = document.querySelector('.sp');
+        const tbtn =document.querySelector('.tb')
+
+        mi.addEventListener('click', () => {
+            si.classList.toggle('open');
+        });
+
+        cbtn.addEventListener('click', () => {
+            si.classList.remove('open');
+        });
+       
+         tbtn.addEventListener('click', () => {
+
+             document.body.classList.toggle('lt');
+             
+             if(document.body.classList.contains('lt'))
+             {
+              tbtn.textContent="Dark";
+             }
+             else{
+              tbtn.textContent="Light"
+             }
+        });
+
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        const form = document.getElementById("cont");
+        const limit = 5; // daily message limit
+
+        function getTodayKey() {
+            const today = new Date();
+            return `messageCount-$
+    {today.getFullYear()}-$
+    {today.getMonth() + 1}-$
+    {today.getDate()}`;
+        }
+
+        function getMessageCount() {
+            const key = getTodayKey();
+            return parseInt(localStorage.getItem(key)) || 0;
+        }
+
+        function incrementMessageCount() {
+            const key = getTodayKey();
+            let count = getMessageCount();
+            count++;
+            localStorage.setItem(key, count);
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const name = form.name.value.trim();
+            const email = form.email.value.trim();
+            const message = form.message.value.trim();
+
+            if (name === "" || email === "" || message === "") {
+                alert("please fill in all fields");
+                return;
+            }
+
+            const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,}$/;
+            if (!emailPattern.test(email)) {
+                alert("please enter a valid email address!");
+                return;
+            }
+
+            if (getMessageCount() >= limit) {
+                alert("You have reached the daily message limit!");
+                return;
+            }
+
+            emailjs.sendForm("service_6gs41y7", "template_9grobq2", form)
+                .then(() => {
+                    incrementMessageCount();
+                    alert("message sent successfully");
+                    form.reset();
+                }, (err) => {
+                    alert("failed to send! please try again");
+                    console.log(err);
+                });
+        });
+    </script>
+</body>
+
+</html>
