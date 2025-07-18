@@ -21,6 +21,7 @@
       width: 100%;
       text-align: center;
       user-select: none;
+      bottom: 20px;
     }
 
     #controls button {
@@ -28,7 +29,7 @@
       border: none;
       padding: 10px 45px;
       margin: 0 35px;
-      font-size: 150px;
+      font-size: 100px;
       border-radius: 8px;
       cursor: pointer;
     }
@@ -43,7 +44,6 @@
     <button id="rightBtn">▶️</button>
   </div>
 
-
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -52,33 +52,34 @@
     const gravity = 0.4;
     const jumpPower = -10;
 
-    // Simple maze blocks
     const blocks = [
-      { x: 0, y: 1400, width: 900, height: 120 },
-      { x: 0, y: 0, width: 30, height: 1500 },
-      { x: 0, y: 0, width: 900, height: 120 },
-      { x: 870, y: 0, width: 30, height: 1500 },// ground
+      { x: 0, y: 1400, width: 900, height: 120 },  // floor
+      { x: 0, y: 0, width: 30, height: 1500 },     // left wall
+      { x: 870, y: 0, width: 30, height: 1500 },   // right wall
+      { x: 0, y: 0, width: 900, height: 30 },      // top wall
       { x: 100, y: 1270, width: 800, height: 30 },
       { x: 0, y: 1150, width: 800, height: 30 },
       { x: 100, y: 1000, width: 800, height: 30 },
       { x: 0, y: 850, width: 800, height: 30 },
       { x: 100, y: 720, width: 800, height: 30 },
       { x: 0, y: 600, width: 800, height: 30 },
+      // crazy vertical blocks
+      { x: 400, y: 800, width: 30, height: 300 },
+      { x: 250, y: 500, width: 30, height: 400 },
+      { x: 600, y: 950, width: 30, height: 350 }
     ];
 
-    // Obstacles
     const obstacles = [
-      { x: 150, y: 1260, width: 30, height: 40, dy: 1, sy: 1260, dx: null },
-      { x: 550, y: 1000, width: 30, height: 40, dy: 1, sy: 1000, dx: null },
-      { x: 150, y: 850, width: 30, height: 40, dy: 1, sy: 850, dx: null },
-      { x: 700, y: 720, width: 30, height: 40, dy: 1, sy: 720, dx: null },
-      { x: 500, y: 580, width: 30, height: 50, dx: 1, sx: 620, dy: null }
+      { x: 150, y: 1260, width: 30, height: 40, dy: 1, sy: 1260 },
+      { x: 550, y: 1000, width: 30, height: 40, dy: 1, sy: 1000 },
+      { x: 150, y: 850, width: 30, height: 40, dy: 1, sy: 850 },
+      { x: 700, y: 720, width: 30, height: 40, dy: 1, sy: 720 },
+      { x: 500, y: 580, width: 30, height: 50, dx: 1, sx: 620 }
     ];
 
     const gate = [
       { x: 30, y: 560, width: 30, height: 40, mov: false },
     ];
-
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') ball.dx = 3;
@@ -90,7 +91,6 @@
       if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
     });
 
-    // Buttons
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
     const upBtn = document.getElementById('upBtn');
@@ -102,21 +102,12 @@
     leftBtn.addEventListener('mouseup', () => ball.dx = 0);
     rightBtn.addEventListener('mouseup', () => ball.dx = 0);
 
-    leftBtn.addEventListener('touchstart', () => {
-      e.preventDefault();
-      ball.dx = -3
-    });
-    rightBtn.addEventListener('touchstart', () => {
-      e.preventDefault();
-      ball.dx = 3
-    });
-    upBtn.addEventListener('touchstart', () => {
-      e.preventDefault();
-      if (ball.onGround) ball.dy = jumpPower;
-    });
+    leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); ball.dx = -3 });
+    rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); ball.dx = 3 });
+    upBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if (ball.onGround) ball.dy = jumpPower; });
 
-    leftBtn.addEventListener('touchend', () => { e.preventDefault(); ball.dx = 0 });
-    rightBtn.addEventListener('touchend', () => { e.preventDefault(); ball.dx = 0 });
+    leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); ball.dx = 0 });
+    rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); ball.dx = 0 });
 
     function update() {
       ball.x += ball.dx;
@@ -126,6 +117,7 @@
       ball.onGround = false;
 
       for (const block of blocks) {
+        // Top collision
         if (
           ball.x + ball.radius > block.x &&
           ball.x - ball.radius < block.x + block.width &&
@@ -133,55 +125,51 @@
           ball.y + ball.radius < block.y + block.height &&
           ball.dy >= 0
         ) {
-          ball.y = block.y- ball.radius;
+          ball.y = block.y - ball.radius;
           ball.dy = 0;
           ball.onGround = true;
         }
-        /*lft
-        if(
-         ball.y + ball.radius > block.y &&
+
+        // Left collision
+        if (
+          ball.y + ball.radius > block.y &&
           ball.y - ball.radius < block.y + block.height &&
-         ball.x+ball.radius>block.x&&
-         ball.x<block.x&&
-          ball.dx >0)
-          {
-            ball.x=block.x-ball.radius;
-            ball.dx=0;
-          }
-//rit
-if(
-         ball.y + ball.radius > block.y &&
+          ball.x + ball.radius > block.x &&
+          ball.x < block.x &&
+          ball.dx > 0
+        ) {
+          ball.x = block.x - ball.radius;
+          ball.dx = 0;
+        }
+
+        // Right collision
+        if (
+          ball.y + ball.radius > block.y &&
           ball.y - ball.radius < block.y + block.height &&
-         ball.x-ball.radius<block.x+block.width&&
-         ball.x>block.x+block.width&&
-          ball.dx <0)
-          {
-            ball.x=block.x+block.width+ ball.radius;
-            ball.dx=0;
-          }*/
+          ball.x - ball.radius < block.x + block.width &&
+          ball.x > block.x + block.width &&
+          ball.dx < 0
+        ) {
+          ball.x = block.x + block.width + ball.radius;
+          ball.dx = 0;
+        }
       }
 
       for (const obs of obstacles) {
-        //x direction
-        obs.x += obs.dx;
-        if (obs.x > obs.sx + 100) {
-          obs.x = obs.sx + 100;
-          obs.dx *= -1;
+        // X direction
+        if (obs.dx) {
+          obs.x += obs.dx;
+          if (obs.x > obs.sx + 100) { obs.x = obs.sx + 100; obs.dx *= -1; }
+          if (obs.x < obs.sx - 100) { obs.x = obs.sx - 100; obs.dx *= -1; }
         }
-        if (obs.x < obs.sx - 100) {
-          obs.x = obs.sx - 100;
-          obs.dx *= -1;
+
+        // Y direction
+        if (obs.dy) {
+          obs.y += obs.dy;
+          if (obs.y > obs.sy + 100) { obs.y = obs.sy + 100; obs.dy *= -1; }
+          if (obs.y < obs.sy - 100) { obs.y = obs.sy - 100; obs.dy *= -1; }
         }
-        //y direction
-        obs.y += obs.dy;
-        if (obs.y > obs.sy + 100) {
-          obs.y = obs.sy + 100;
-          obs.dy *= -1;
-        }
-        if (obs.y < obs.sy - 100) {
-          obs.y = obs.sy - 100;
-          obs.dy *= -1;
-        }
+
         if (
           ball.x + ball.radius > obs.x &&
           ball.x - ball.radius < obs.x + obs.width &&
@@ -189,22 +177,19 @@ if(
           ball.y - ball.radius < obs.y + obs.height
         ) {
           alert('You Out');
-          ball.x = 800; ball.y = 550; ball.dx = 0; ball.dy = 0;
+          ball.x = 830; ball.y = 1350; ball.dx = 0; ball.dy = 0;
         }
       }
+
       for (const gbs of gate) {
-          if(
-            ball.x+ball.radius>gbs.x&&
-            ball.x-ball.radius<gbs.x+
-            gbs.width&&
-            ball.y+ball.radius>gbs.y&&
-            ball.y-ball.radius<gbs.y+
-            gbs.width&&
-            !gbs.mov
-          ){
-          gbs.x = 830;
-          gbs.y = 1350;
-          gbs.mov = true;
+        if (
+          ball.x + ball.radius > gbs.x &&
+          ball.x - ball.radius < gbs.x + gbs.width &&
+          ball.y + ball.radius > gbs.y &&
+          ball.y - ball.radius < gbs.y + gbs.width &&
+          !gbs.mov
+        ) {
+          gbs.x = 830; gbs.y = 1350; gbs.mov = true;
         }
 
         if (
@@ -222,25 +207,21 @@ if(
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Blocks (maze path)
       ctx.fillStyle = '#555';
       for (const block of blocks) {
         ctx.fillRect(block.x, block.y, block.width, block.height);
       }
 
-      // Obstacles
       ctx.fillStyle = '#f00';
       for (const obs of obstacles) {
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
       }
 
-      // gate
       ctx.fillStyle = '#0f0';
       for (const gbs of gate) {
         ctx.fillRect(gbs.x, gbs.y, gbs.width, gbs.height);
       }
 
-      // Ball
       ctx.fillStyle = '#0f0';
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -257,4 +238,4 @@ if(
   </script>
 </body>
 
-</html>
+</html>               
