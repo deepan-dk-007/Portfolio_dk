@@ -20,8 +20,8 @@
       position: absolute;
       width: 100%;
       text-align: center;
-      user-select: none;
       bottom: 20px;
+      user-select: none;
     }
     #controls button {
       background: white;
@@ -32,7 +32,7 @@
       border-radius: 8px;
       cursor: pointer;
       user-select: none;
-      touch-action: none;
+      touch-action: manipulation;
     }
     #rotateNotice {
       display: none;
@@ -105,6 +105,7 @@
     const ball = { x: 830, y: 650, radius: 15, dx: 0, dy: 0, onGround: false };
     const gravity = 0.4;
     const jumpPower = -11;
+    let cameraY = 0;
     let gameRunning = true;
 
     const blocks = [
@@ -146,15 +147,24 @@
     const rightBtn = document.getElementById('rightBtn');
     const upBtn = document.getElementById('upBtn');
 
-    leftBtn.addEventListener('pointerdown', () => ball.dx = -3);
-    rightBtn.addEventListener('pointerdown', () => ball.dx = 3);
-    upBtn.addEventListener('pointerdown', () => { if (ball.onGround) ball.dy = jumpPower; });
+    leftBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      ball.dx = -5;
+    });
+    rightBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      ball.dx = 5;
+    });
+    upBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (ball.onGround) ball.dy = jumpPower;
+    });
     leftBtn.addEventListener('pointerup', () => ball.dx = 0);
     rightBtn.addEventListener('pointerup', () => ball.dx = 0);
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') ball.dx = 3;
-      if (e.key === 'ArrowLeft') ball.dx = -3;
+      if (e.key === 'ArrowRight') ball.dx = 5;
+      if (e.key === 'ArrowLeft') ball.dx = -5;
       if (e.key === 'ArrowUp' && ball.onGround) ball.dy = jumpPower;
     });
     document.addEventListener('keyup', (e) => {
@@ -168,7 +178,6 @@
       ball.y += ball.dy;
       ball.dy += gravity;
       ball.onGround = false;
-
 
       for (const block of blocks) {
         const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
@@ -204,7 +213,6 @@
           ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
           ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
         ) {
-          // Instead of alert
           document.getElementById('playAgainBtn').style.display = 'block';
           gameRunning = false;
         }
@@ -230,14 +238,14 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#555';
-      for (const block of blocks) ctx.fillRect(block.x, block.y);
+      for (const block of blocks) ctx.fillRect(block.x, block.y + cameraY, block.width, block.height);
       ctx.fillStyle = '#f00';
-      for (const obs of obstacles) ctx.fillRect(obs.x, obs.y);
+      for (const obs of obstacles) ctx.fillRect(obs.x, obs.y + cameraY, obs.width, obs.height);
       ctx.fillStyle = '#0f0';
-      for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y );
+      for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y + cameraY, gbs.width, gbs.height);
       ctx.fillStyle = '#0f0';
       ctx.beginPath();
-      ctx.arc(ball.x, ball.y + ball.radius)
+      ctx.arc(ball.x, ball.y + cameraY, ball.radius, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -266,4 +274,4 @@
     });
   </script>
 </body>
-</html>
+    </html>
