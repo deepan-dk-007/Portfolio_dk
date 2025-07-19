@@ -8,6 +8,8 @@
       margin: 0;
       overflow: hidden;
       display: flex;
+      user-select:none;
+      -webkit-user-select:none;
     }canvas {
   background: #222;
   display: block;
@@ -24,7 +26,7 @@
   bottom: 20px;
 }
 
-#controls button, #playAgainBtn, #sensitivityBtn {
+#controls button, #playAgainBtn {
   background-color: white;
   border: none;
   padding: 10px 45px;
@@ -89,33 +91,28 @@
   z-index: 1001;
 }
 
-#sensitivityBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1001;
-}
+
 
   </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="900" height="1000"></canvas>  <div id="controls">
-    <button id="leftBtn">◀️</button>
-    <button id="rightBtn">▶️</button>
+    <button id="leftBtn" style="margin-left:0">◀️</button>
+    <button id="rightBtn"style="margin-left:140px">▶️</button>
     <button id="upBtn">⬆️</button>
   </div>  <div id="rotateNotice">
     📱 Please rotate your device to <strong>landscape</strong> mode to play the game!
   </div>  <div class="fg">
     <button id="startBtn"><h1>Start Game</h1></button>
     <button id="playAgainBtn">Play Again</button>
-    <button id="sensitivityBtn">Sensitivity</button>
+
   </div>  <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
     const gravity = 0.5;
     const jumpPower = -10;
-    let speed = 3;
+    let speed = 1;
 
     const blocks = [
       { x: 0, y: 650, width: 600, height: 520 },
@@ -164,10 +161,6 @@
       leftBtn.addEventListener('pointerup', () => ball.dx = 0);
       rightBtn.addEventListener('pointerup', () => ball.dx = 0);
 
-      document.getElementById('sensitivityBtn').addEventListener('click', () => {
-        speed = speed === 3 ? 5 : 3;
-        alert('Sensitivity changed to ' + speed);
-      });
 
       document.getElementById('playAgainBtn').addEventListener('click', () => {
         window.location.reload();
