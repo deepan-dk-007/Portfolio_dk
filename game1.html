@@ -12,10 +12,10 @@
     }
     canvas {
       display: block;
-      background: #222;
-      width: 100vw;   /* fills mobile width */
-      height: 100vh;  /* fills mobile height */
+      width: 100vw;
+      height: 100vh;
       object-fit: contain;
+      background: #222;
     }
     #controls {
       position: absolute;
@@ -48,16 +48,18 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // ✅ Ball starting near bottom
+    // ✅ Ball starts near bottom
     const ball = { x: 450, y: 1450, radius: 20, dx: 0, dy: 0, onGround: false };
     const gravity = 0.5;
     const jumpPower = -15;
 
     let cameraY = 0;
 
-    // ✅ Ground block at very bottom
+    // ✅ Floor at bottom
     const blocks = [
-      { x: 0, y: 1480, width: 900, height: 20 }
+      { x: 0, y: 1480, width: 900, height: 20 },
+      { x: 0, y: 0, width: 30, height: 1500 },  // Left wall
+      { x: 870, y: 0, width: 30, height: 1500 } // Right wall
     ];
 
     const leftBtn = document.getElementById("leftBtn");
@@ -76,10 +78,13 @@
       ball.y += ball.dy;
       ball.dy += gravity;
 
-      // ✅ Camera follow up only if ball jumps
-      cameraY = Math.min(0, 1000 - ball.y);
-
       ball.onGround = false;
+
+      // ✅ Proper: show ground at start, follow ball up
+      cameraY = -(ball.y - canvas.height + 100);
+      if (ball.y < canvas.height - 500) {
+        cameraY = -(ball.y - canvas.height + 500);
+      }
 
       for (const block of blocks) {
         if (ball.x + ball.radius > block.x &&
@@ -96,13 +101,13 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw ground
+      // Floor and walls
       ctx.fillStyle = "#555";
       for (const block of blocks) {
         ctx.fillRect(block.x, block.y + cameraY, block.width, block.height);
       }
 
-      // Draw ball
+      // Ball
       ctx.fillStyle = "lime";
       ctx.beginPath();
       ctx.arc(ball.x, ball.y + cameraY, ball.radius, 0, Math.PI * 2);
