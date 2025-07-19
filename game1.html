@@ -5,13 +5,10 @@
   <title>DK GAMEZ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <style>
-    html, body {
+    body {
       margin: 0;
       overflow: hidden;
       display: flex;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
     }
 
     canvas {
@@ -26,6 +23,7 @@
       position: absolute;
       width: 100%;
       text-align: center;
+      user-select: none;
       bottom: 20px;
     }
 
@@ -39,8 +37,7 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
-      margin-left:140px;
+      touch-action: manipulation;
     }
 
     #rotateNotice {
@@ -66,22 +63,8 @@
       font-size: 30px;
       z-index: 1000;
       background-color: black;
-      color: rgb(255, 2, 2);
-    }
-
-    #playAgain {
-      position: absolute;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: yellow;
-      padding: 10px 20px;
-      font-size: 20px;
-      border: none;
-      border-radius: 5px;
-      display: none;
-      z-index: 1001;
       user-select: none;
+      color: rgb(255, 2, 2);
     }
 
     @keyframes shine {
@@ -100,6 +83,21 @@
       background-clip: text;
       animation: shine 1s linear infinite;
     }
+
+    #playAgainBtn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
   </style>
 </head>
 
@@ -107,17 +105,20 @@
   <canvas id="gameCanvas" width="900" height="1000"></canvas>
 
   <div id="controls">
-    <button id="leftBtn">◀️</button>
-    <button id="rightBtn">▶️</button>
+    <button id="leftBtn" style="margin-left: 1px;">◀️</button>
+    <button id="rightBtn" style="margin-right: 140px;">▶️</button>
     <button id="upBtn">⬆️</button>
   </div>
 
-  <div id="rotateNotice">📱 Please rotate your device to <strong>landscape</strong> mode to play the game!</div>
+  <div id="rotateNotice">
+    📱 Please rotate your device to <strong>landscape</strong> mode to play the game!
+  </div>
 
   <div class="fg">
     <button id="startBtn"><h1>Start Game</h1></button>
-    <button id="playAgain">Play Again</button>
   </div>
+
+  <button id="playAgainBtn">Play Again</button>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -126,7 +127,6 @@
     const ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
     const gravity = 0.5;
     const jumpPower = -10;
-    let speed = 3;  // adjust speed here if needed
 
     const blocks = [
       { x: 0, y: 650, width: 600, height: 520 },
@@ -157,31 +157,33 @@
       { x: 600, y: 130, width: 10, height: 40, dx: 1, sx: 620 }
     ];
 
-    const gate = [{ x: 830, y: 120, width: 30, height: 40, mov: false }];
-
-    const leftBtn = document.getElementById('leftBtn');
-    const rightBtn = document.getElementById('rightBtn');
-    const upBtn = document.getElementById('upBtn');
-    const playAgain = document.getElementById('playAgain');
+    const gate = [
+      { x: 830, y: 120, width: 30, height: 40, mov: false },
+    ];
 
     document.getElementById('startBtn').addEventListener('click', () => {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      }
       document.getElementById('startBtn').style.display = 'none';
 
-      leftBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ball.dx = -speed; });
-      rightBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ball.dx = speed; });
-      upBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); if (ball.onGround) ball.dy = jumpPower; });
+      const leftBtn = document.getElementById('leftBtn');
+      const rightBtn = document.getElementById('rightBtn');
+      const upBtn = document.getElementById('upBtn');
 
-      leftBtn.addEventListener('pointerup', (e) => { e.preventDefault(); ball.dx = 0; });
-      rightBtn.addEventListener('pointerup', (e) => { e.preventDefault(); ball.dx = 0; });
+      leftBtn.addEventListener('pointerdown', () => ball.dx = -3);
+      rightBtn.addEventListener('pointerdown', () => ball.dx = 3);
+      upBtn.addEventListener('pointerdown', () => { if (ball.onGround) ball.dy = jumpPower; });
+
+      leftBtn.addEventListener('pointerup', () => ball.dx = 0);
+      rightBtn.addEventListener('pointerup', () => ball.dx = 0);
 
       leftBtn.addEventListener('pointercancel', (e) => { e.preventDefault(); ball.dx = 0; });
       rightBtn.addEventListener('pointercancel', (e) => { e.preventDefault(); ball.dx = 0; });
 
-      playAgain.addEventListener('click', () => window.location.reload());
-
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') ball.dx = speed;
-        if (e.key === 'ArrowLeft') ball.dx = -speed;
+        if (e.key === 'ArrowRight') ball.dx = 3;
+        if (e.key === 'ArrowLeft') ball.dx = -3;
         if (e.key === 'ArrowUp' && ball.onGround) ball.dy = jumpPower;
       });
 
@@ -189,10 +191,13 @@
         if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
       });
 
+      document.getElementById('playAgainBtn').addEventListener('click', () => location.reload());
+
       function update() {
         ball.x += ball.dx;
         ball.y += ball.dy;
         ball.dy += gravity;
+
         ball.onGround = false;
 
         for (const block of blocks) {
@@ -232,9 +237,8 @@
             ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
             ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
           ) {
-        
-            playAgain.style.display = 'block';
-            ball.dx = 0; ball.dy = 0;
+            alert('You Out');
+            ball.x = 830; ball.y = 650; ball.dx = 0; ball.dy = 0;
           }
         }
 
@@ -290,4 +294,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
