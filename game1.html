@@ -40,6 +40,7 @@
       user-select: none;
       -webkit-user-select: none;
       touch-action: none;
+      margin-left:140px;
     }
 
     #rotateNotice {
@@ -231,7 +232,7 @@
             ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
             ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
           ) {
-            alert('You Out');
+        
             playAgain.style.display = 'block';
             ball.dx = 0; ball.dy = 0;
           }
