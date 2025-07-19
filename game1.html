@@ -1,118 +1,131 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>DK GAMEZ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <style>
-    body {
+    html, body {
       margin: 0;
       overflow: hidden;
       display: flex;
-      user-select:none;
-      -webkit-user-select:none;
-    }canvas {
-  background: #222;
-  display: block;
-  height: 120vh;
-  width: 100vw;
-  justify-content: center;
-}
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
 
-#controls {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  user-select: none;
-  bottom: 20px;
-}
+    canvas {
+      background: #222;
+      display: block;
+      height: 120vh;
+      width: 100vw;
+      justify-content: center;
+    }
 
-#controls button, #playAgainBtn {
-  background-color: white;
-  border: none;
-  padding: 10px 45px;
-  margin: 10px;
-  font-size: 25px;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-}
+    #controls {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      bottom: 20px;
+    }
 
-#rotateNotice {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: #000;
-  color: #fff;
-  font-size: 30px;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  z-index: 9999;
-  padding: 30px;
-}
+    #controls button {
+      background-color: white;
+      border: none;
+      padding: 10px 45px;
+      margin: 0 35px;
+      font-size: 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
 
-#startBtn {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 160px 250px;
-  font-size: 30px;
-  z-index: 1000;
-  background-color: black;
-  user-select: none;
-  color: rgb(255, 2, 2);
-}
+    #rotateNotice {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      color: #fff;
+      font-size: 30px;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      padding: 30px;
+    }
 
-@keyframes shine {
-  from { background-position: -200% 0; }
-  to { background-position: 200% 0; }
-}
+    #startBtn {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 160px 250px;
+      font-size: 30px;
+      z-index: 1000;
+      background-color: black;
+      color: rgb(255, 2, 2);
+    }
 
-#startBtn h1 {
-  padding: 10px;
-  border-radius: 50px;
-  margin-top: 70%;
-  border: 3px solid white;
-  color: transparent;
-  background: linear-gradient(132deg, violet, darkblue, purple);
-  background-size: 200%;
-  background-clip: text;
-  animation: shine 1s linear infinite;
-}
+    #playAgain {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: yellow;
+      padding: 10px 20px;
+      font-size: 20px;
+      border: none;
+      border-radius: 5px;
+      display: none;
+      z-index: 1001;
+      user-select: none;
+    }
 
-#playAgainBtn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: none;
-  z-index: 1001;
-}
+    @keyframes shine {
+      from { background-position: -200% 0; }
+      to { background-position: 200% 0; }
+    }
 
-
-
+    #startBtn h1 {
+      padding: 10px;
+      border-radius: 50px;
+      margin-top: 70%;
+      border: 3px solid white;
+      color: transparent;
+      background: linear-gradient(132deg, violet, darkblue, purple);
+      background-size: 200%;
+      background-clip: text;
+      animation: shine 1s linear infinite;
+    }
   </style>
 </head>
-<body>
-  <canvas id="gameCanvas" width="900" height="1000"></canvas>  <div id="controls">
-    <button id="leftBtn" style="margin-left:0">◀️</button>
-    <button id="rightBtn"style="margin-left:140px">▶️</button>
-    <button id="upBtn">⬆️</button>
-  </div>  <div id="rotateNotice">
-    📱 Please rotate your device to <strong>landscape</strong> mode to play the game!
-  </div>  <div class="fg">
-    <button id="startBtn"><h1>Start Game</h1></button>
-    <button id="playAgainBtn">Play Again</button>
 
-  </div>  <script>
+<body>
+  <canvas id="gameCanvas" width="900" height="1000"></canvas>
+
+  <div id="controls">
+    <button id="leftBtn">◀️</button>
+    <button id="rightBtn">▶️</button>
+    <button id="upBtn">⬆️</button>
+  </div>
+
+  <div id="rotateNotice">📱 Please rotate your device to <strong>landscape</strong> mode to play the game!</div>
+
+  <div class="fg">
+    <button id="startBtn"><h1>Start Game</h1></button>
+    <button id="playAgain">Play Again</button>
+  </div>
+
+  <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
     const ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
     const gravity = 0.5;
     const jumpPower = -10;
-    let speed = 1;
+    let speed = 3;  // adjust speed here if needed
 
     const blocks = [
       { x: 0, y: 650, width: 600, height: 520 },
@@ -143,27 +156,36 @@
       { x: 600, y: 130, width: 10, height: 40, dx: 1, sx: 620 }
     ];
 
-    const gate = [ { x: 830, y: 120, width: 30, height: 40, mov: false } ];
+    const gate = [{ x: 830, y: 120, width: 30, height: 40, mov: false }];
+
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const upBtn = document.getElementById('upBtn');
+    const playAgain = document.getElementById('playAgain');
 
     document.getElementById('startBtn').addEventListener('click', () => {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      }
       document.getElementById('startBtn').style.display = 'none';
-      const leftBtn = document.getElementById('leftBtn');
-      const rightBtn = document.getElementById('rightBtn');
-      const upBtn = document.getElementById('upBtn');
 
-      leftBtn.addEventListener('pointerdown', () => ball.dx = -speed);
-      rightBtn.addEventListener('pointerdown', () => ball.dx = speed);
-      upBtn.addEventListener('pointerdown', () => { if (ball.onGround) ball.dy = jumpPower; });
+      leftBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ball.dx = -speed; });
+      rightBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ball.dx = speed; });
+      upBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); if (ball.onGround) ball.dy = jumpPower; });
 
-      leftBtn.addEventListener('pointerup', () => ball.dx = 0);
-      rightBtn.addEventListener('pointerup', () => ball.dx = 0);
+      leftBtn.addEventListener('pointerup', (e) => { e.preventDefault(); ball.dx = 0; });
+      rightBtn.addEventListener('pointerup', (e) => { e.preventDefault(); ball.dx = 0; });
 
+      leftBtn.addEventListener('pointercancel', (e) => { e.preventDefault(); ball.dx = 0; });
+      rightBtn.addEventListener('pointercancel', (e) => { e.preventDefault(); ball.dx = 0; });
 
-      document.getElementById('playAgainBtn').addEventListener('click', () => {
-        window.location.reload();
+      playAgain.addEventListener('click', () => window.location.reload());
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') ball.dx = speed;
+        if (e.key === 'ArrowLeft') ball.dx = -speed;
+        if (e.key === 'ArrowUp' && ball.onGround) ball.dy = jumpPower;
+      });
+
+      document.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
       });
 
       function update() {
@@ -196,18 +218,22 @@
         for (const obs of obstacles) {
           if (obs.dx) {
             obs.x += obs.dx;
-            if (obs.x > obs.sx + 100 || obs.x < obs.sx - 100) obs.dx *= -1;
+            if (obs.x > obs.sx + 100) obs.dx *= -1;
+            if (obs.x < obs.sx - 100) obs.dx *= -1;
           }
           if (obs.dy) {
             obs.y += obs.dy;
-            if (obs.y > obs.sy + 100 || obs.y < obs.sy - 100) obs.dy *= -1;
+            if (obs.y > obs.sy + 100) obs.dy *= -1;
+            if (obs.y < obs.sy - 100) obs.dy *= -1;
           }
 
           if (
             ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
             ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
           ) {
-            document.getElementById('playAgainBtn').style.display = 'block';
+            alert('You Out');
+            playAgain.style.display = 'block';
+            ball.dx = 0; ball.dy = 0;
           }
         }
 
@@ -230,12 +256,16 @@
 
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = 'black';
         for (const block of blocks) ctx.fillRect(block.x, block.y, block.width, block.height);
+
         ctx.fillStyle = 'purple';
         for (const obs of obstacles) ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+
         ctx.fillStyle = 'gold';
         for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y, gbs.width, gbs.height);
+
         ctx.fillStyle = 'red';
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -247,17 +277,16 @@
         draw();
         requestAnimationFrame(loop);
       }
-
       loop();
 
       function checkOrientation() {
         document.getElementById('rotateNotice').style.display =
           window.innerHeight > window.innerWidth ? 'flex' : 'none';
       }
-
       window.addEventListener('resize', checkOrientation);
       window.addEventListener('orientationchange', checkOrientation);
       checkOrientation();
     });
-  </script></body>
-</html>
+  </script>
+</body>
+  </html>
