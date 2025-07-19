@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DK GAMEZ</title>
+  <title>DK FINAL GAME</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <style>
     body {
@@ -13,56 +13,24 @@
     canvas {
       display: block;
       background: #222;
-      width: 100vw;
-      height: auto;
+      width: 100vw;   /* fills mobile width */
+      height: 100vh;  /* fills mobile height */
+      object-fit: contain;
     }
     #controls {
       position: absolute;
       width: 100%;
       text-align: center;
-      user-select: none;
       bottom: 20px;
     }
     #controls button {
       background: white;
       border: none;
-      padding: 10px 45px;
-      margin: 0 35px;
-      font-size: 25px;
+      padding: 20px 40px;
+      margin: 0 30px;
+      font-size: 30px;
       border-radius: 8px;
       cursor: pointer;
-      user-select: none;
-      touch-action: none;
-    }
-    #rotateNotice {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #000;
-      color: #fff;
-      font-size: 30px;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      z-index: 9999;
-      padding: 30px;
-    }
-    #startBtn {
-      position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 100px 200px;
-      font-size: 30px;
-      z-index: 1000;
-      background: black;
-      color: red;
-      user-select: none;
-    }
-    #startBtn h1 {
-      padding: 10px;
-      border-radius: 50px;
-      border: 3px solid white;
     }
   </style>
 </head>
@@ -76,155 +44,66 @@
     <button id="upBtn">⬆️</button>
   </div>
 
-  <div id="rotateNotice">
-    📱 Please rotate your device to <strong>landscape</strong> mode to play the game!
-  </div>
-
-  <button id="startBtn"><h1>Start Game</h1></button>
-
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-    const ball = { x: 830, y: 1150, radius: 15, dx: 0, dy: 0, onGround: false };
-    const gravity = 0.4;
-    const jumpPower = -11;
+    // ✅ Ball starting near bottom
+    const ball = { x: 450, y: 1450, radius: 20, dx: 0, dy: 0, onGround: false };
+    const gravity = 0.5;
+    const jumpPower = -15;
 
     let cameraY = 0;
 
+    // ✅ Ground block at very bottom
     const blocks = [
-      { x: 0, y: 1100, width: 900, height: 520 },
-      { x: 0, y: 0, width: 30, height: 1500 },
-      { x: 870, y: 0, width: 30, height: 1500 },
-      { x: 0, y: 0, width: 900, height: 30 },
-      { x: 100, y: 950, width: 800, height: 30 },
-      { x: 0, y: 800, width: 800, height: 30 },
-      { x: 100, y: 650, width: 800, height: 30 },
-      { x: 0, y: 500, width: 800, height: 30 },
-      { x: 80, y: 350, width: 800, height: 30 },
-      { x: 0, y: 200, width: 830, height: 30 },
-      { x: 400, y: 800, width: 30, height: 70 },
-      { x: 250, y: 500, width: 30, height: 70 },
-      { x: 600, y: 950, width: 30, height: 70 }
+      { x: 0, y: 1480, width: 900, height: 20 }
     ];
 
-    const obstacles = [
-      { x: 150, y: 680, width: 20, height: 40, dy: 1, sy: 950 },
-      { x: 550, y: 750, width: 20, height: 40, dy: 1, sy: 650 },
-      { x: 160, y: 500, width: 20, height: 40, dy: 1, sy: 400 },
-      { x: 300, y: 350, width: 20, height: 40, dy: 1, sy: 320 },
-      { x: 600, y: 150, width: 20, height: 50, dx: 1, sx: 620 }
-    ];
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+    const upBtn = document.getElementById("upBtn");
 
-    const gate = [
-      { x: 30, y: 160, width: 30, height: 40, mov: false },
-    ];
+    leftBtn.addEventListener("pointerdown", () => ball.dx = -5);
+    rightBtn.addEventListener("pointerdown", () => ball.dx = 5);
+    upBtn.addEventListener("pointerdown", () => { if (ball.onGround) ball.dy = jumpPower; });
 
-    document.getElementById('startBtn').addEventListener('click', () => {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      }
-      document.getElementById('startBtn').style.display = 'none';
-    });
-
-    const leftBtn = document.getElementById('leftBtn');
-    const rightBtn = document.getElementById('rightBtn');
-    const upBtn = document.getElementById('upBtn');
-
-    leftBtn.addEventListener('pointerdown', () => ball.dx = -3);
-    rightBtn.addEventListener('pointerdown', () => ball.dx = 3);
-    upBtn.addEventListener('pointerdown', () => { if (ball.onGround) ball.dy = jumpPower; });
-    leftBtn.addEventListener('pointerup', () => ball.dx = 0);
-    rightBtn.addEventListener('pointerup', () => ball.dx = 0);
-    leftBtn.addEventListener('pointercancel', () => ball.dx = 0);
-    rightBtn.addEventListener('pointercancel', () => ball.dx = 0);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') ball.dx = 3;
-      if (e.key === 'ArrowLeft') ball.dx = -3;
-      if (e.key === 'ArrowUp' && ball.onGround) ball.dy = jumpPower;
-    });
-    document.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
-    });
+    leftBtn.addEventListener("pointerup", () => ball.dx = 0);
+    rightBtn.addEventListener("pointerup", () => ball.dx = 0);
 
     function update() {
       ball.x += ball.dx;
       ball.y += ball.dy;
       ball.dy += gravity;
+
+      // ✅ Camera follow up only if ball jumps
+      cameraY = Math.min(0, 1000 - ball.y);
+
       ball.onGround = false;
 
-      // ✅ FINAL: Camera shows ground at bottom, follows up if needed
-      cameraY = -(ball.y - canvas.height + 100);
-      if (ball.y < canvas.height - 300) {
-        cameraY = -(ball.y - canvas.height + 300);
-      }
-
       for (const block of blocks) {
-        const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
-        const closestY = Math.max(block.y, Math.min(ball.y, block.y + block.height));
-        const dx = ball.x - closestX;
-        const dy = ball.y - closestY;
-        if (dx * dx + dy * dy < ball.radius * ball.radius) {
-          const overlapX = ball.radius - Math.abs(dx);
-          const overlapY = ball.radius - Math.abs(dy);
-          if (overlapX < overlapY) {
-            ball.x += dx > 0 ? overlapX : -overlapX;
-            ball.dx = 0;
-          } else {
-            ball.y += dy > 0 ? overlapY : -overlapY;
-            ball.dy = 0;
-            if (dy < 0) ball.onGround = true;
-          }
-        }
-      }
-
-      for (const obs of obstacles) {
-        if (obs.dx) {
-          obs.x += obs.dx;
-          if (obs.x > obs.sx + 100) obs.dx *= -1;
-          if (obs.x < obs.sx - 100) obs.dx *= -1;
-        }
-        if (obs.dy) {
-          obs.y += obs.dy;
-          if (obs.y > obs.sy + 100) obs.dy *= -1;
-          if (obs.y < obs.sy - 100) obs.dy *= -1;
-        }
-        if (
-          ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
-          ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
-        ) {
-          alert('You Out');
-          ball.x = 830; ball.y = 1150; ball.dx = 0; ball.dy = 0;
-        }
-      }
-
-      for (const gbs of gate) {
-        if (
-          ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
-          ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.height && !gbs.mov
-        ) {
-          gbs.x = 830; gbs.y = 1150; gbs.mov = true;
-        }
-        if (
-          ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
-          ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.height
-        ) {
-          alert('You WIN!!!');
-          ball.x = 50; ball.y = 550; ball.dx = 0; ball.dy = 0;
+        if (ball.x + ball.radius > block.x &&
+            ball.x - ball.radius < block.x + block.width &&
+            ball.y + ball.radius > block.y &&
+            ball.y - ball.radius < block.y + block.height) {
+          ball.y = block.y - ball.radius;
+          ball.dy = 0;
+          ball.onGround = true;
         }
       }
     }
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#555';
-      for (const block of blocks) ctx.fillRect(block.x, block.y + cameraY, block.width, block.height);
-      ctx.fillStyle = '#f00';
-      for (const obs of obstacles) ctx.fillRect(obs.x, obs.y + cameraY, obs.width, obs.height);
-      ctx.fillStyle = '#0f0';
-      for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y + cameraY, gbs.width, gbs.height);
-      ctx.fillStyle = '#0f0';
+
+      // Draw ground
+      ctx.fillStyle = "#555";
+      for (const block of blocks) {
+        ctx.fillRect(block.x, block.y + cameraY, block.width, block.height);
+      }
+
+      // Draw ball
+      ctx.fillStyle = "lime";
       ctx.beginPath();
       ctx.arc(ball.x, ball.y + cameraY, ball.radius, 0, Math.PI * 2);
       ctx.fill();
@@ -235,15 +114,8 @@
       draw();
       requestAnimationFrame(loop);
     }
-    loop();
 
-    function checkOrientation() {
-      document.getElementById('rotateNotice').style.display =
-        window.innerHeight > window.innerWidth ? 'flex' : 'none';
-    }
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    checkOrientation();
+    loop();
   </script>
 </body>
 </html>
