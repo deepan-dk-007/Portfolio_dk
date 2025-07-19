@@ -161,8 +161,8 @@
       ball.dy += gravity;
       ball.onGround = false;
 
-      // ✅ Camera only scrolls up when ball jumps higher
-      cameraY = Math.min(0, 700 - ball.y);
+      // ✅ New: stick point keeps floor visible!
+      cameraY = Math.min(0, 1200 - ball.y);
 
       for (const block of blocks) {
         const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
