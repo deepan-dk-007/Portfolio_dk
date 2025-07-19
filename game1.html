@@ -8,13 +8,13 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: #222; /* matches canvas background */
+      background: #222;
     }
     canvas {
       display: block;
       background: #222;
-      width: 100vw;   /* scale for mobile width */
-      height: auto;   /* keep aspect */
+      width: 100vw;   /* Full mobile width */
+      height: auto;   /* Keep aspect ratio */
     }
     #controls {
       position: absolute;
@@ -24,7 +24,7 @@
       bottom: 20px;
     }
     #controls button {
-      background-color: white;
+      background: white;
       border: none;
       padding: 10px 45px;
       margin: 0 35px;
@@ -91,7 +91,7 @@
     const gravity = 0.4;
     const jumpPower = -11;
 
-    // ✅ New: Camera scroll
+    // ✅ Camera scroll amount
     let cameraY = 0;
 
     // ✅ Blocks
@@ -132,7 +132,7 @@
       document.getElementById('startBtn').style.display = 'none';
     });
 
-    // ✅ Buttons
+    // ✅ Controls
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
     const upBtn = document.getElementById('upBtn');
@@ -154,15 +154,15 @@
       if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
     });
 
-    // ✅ Main update
+    // ✅ Update logic
     function update() {
       ball.x += ball.dx;
       ball.y += ball.dy;
       ball.dy += gravity;
       ball.onGround = false;
 
-      // ✅ Camera follows ball upwards
-      cameraY = Math.max(0, ball.y - 700);
+      // ✅ Camera only scrolls up when ball jumps higher
+      cameraY = Math.min(0, 700 - ball.y);
 
       for (const block of blocks) {
         const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
@@ -220,18 +220,18 @@
       }
     }
 
-    // ✅ Draw loop with camera offset
+    // ✅ Draw with camera shift
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#555';
-      for (const block of blocks) ctx.fillRect(block.x, block.y - cameraY, block.width, block.height);
+      for (const block of blocks) ctx.fillRect(block.x, block.y + cameraY, block.width, block.height);
       ctx.fillStyle = '#f00';
-      for (const obs of obstacles) ctx.fillRect(obs.x, obs.y - cameraY, obs.width, obs.height);
+      for (const obs of obstacles) ctx.fillRect(obs.x, obs.y + cameraY, obs.width, obs.height);
       ctx.fillStyle = '#0f0';
-      for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y - cameraY, gbs.width, gbs.height);
+      for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y + cameraY, gbs.width, gbs.height);
       ctx.fillStyle = '#0f0';
       ctx.beginPath();
-      ctx.arc(ball.x, ball.y - cameraY, ball.radius, 0, Math.PI * 2);
+      ctx.arc(ball.x, ball.y + cameraY, ball.radius, 0, Math.PI * 2);
       ctx.fill();
     }
 
