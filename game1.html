@@ -13,8 +13,8 @@
     canvas {
       display: block;
       background: #222;
-      width: 100vw;   /* Full width on mobile */
-      height: auto;   /* Keep aspect ratio */
+      width: 100vw;
+      height: auto;
     }
     #controls {
       position: absolute;
@@ -86,15 +86,12 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // ✅ Ball & game setup
     const ball = { x: 830, y: 1150, radius: 15, dx: 0, dy: 0, onGround: false };
     const gravity = 0.4;
     const jumpPower = -11;
 
-    // ✅ Camera scroll amount
     let cameraY = 0;
 
-    // ✅ Blocks
     const blocks = [
       { x: 0, y: 1100, width: 900, height: 520 },
       { x: 0, y: 0, width: 30, height: 1500 },
@@ -111,7 +108,6 @@
       { x: 600, y: 950, width: 30, height: 70 }
     ];
 
-    // ✅ Obstacles
     const obstacles = [
       { x: 150, y: 680, width: 20, height: 40, dy: 1, sy: 950 },
       { x: 550, y: 750, width: 20, height: 40, dy: 1, sy: 650 },
@@ -124,7 +120,6 @@
       { x: 30, y: 160, width: 30, height: 40, mov: false },
     ];
 
-    // ✅ Start fullscreen
     document.getElementById('startBtn').addEventListener('click', () => {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
@@ -132,7 +127,6 @@
       document.getElementById('startBtn').style.display = 'none';
     });
 
-    // ✅ Controls
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
     const upBtn = document.getElementById('upBtn');
@@ -154,17 +148,17 @@
       if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
     });
 
-    // ✅ Update logic
     function update() {
       ball.x += ball.dx;
       ball.y += ball.dy;
       ball.dy += gravity;
       ball.onGround = false;
 
-      // ✅ Final camera logic:
-      // If ball is below 1300 → floor area stays visible
-      // If ball jumps up above 1300 → camera follows
-      cameraY = Math.min(0, 1300 - ball.y);
+      // ✅ FINAL: Camera shows ground at bottom, follows up if needed
+      cameraY = -(ball.y - canvas.height + 100);
+      if (ball.y < canvas.height - 300) {
+        cameraY = -(ball.y - canvas.height + 300);
+      }
 
       for (const block of blocks) {
         const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
@@ -222,7 +216,6 @@
       }
     }
 
-    // ✅ Draw with camera shift
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#555';
