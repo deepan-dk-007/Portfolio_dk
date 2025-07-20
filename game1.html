@@ -13,7 +13,7 @@
     canvas {
       background: #222;
       display: block;
-      height: 120vh;
+      height: 100vh;
       width: 100vw;
     }
 
@@ -177,6 +177,9 @@
       { x: 830, y: 120, width: 30, height: 40, mov: false },
     ];
 
+    let cameraX = 0;
+    let cameraY = 0;
+
     function requestFull() {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
@@ -225,6 +228,10 @@
         ball.dy += gravity;
 
         ball.onGround = false;
+
+        // Update camera to follow ball
+        cameraX = ball.x - canvas.width / 2;
+        cameraY = ball.y - canvas.height / 2;
 
         for (const block of blocks) {
           const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
@@ -289,17 +296,17 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = 'black';
-        for (const block of blocks) ctx.fillRect(block.x, block.y, block.width, block.height);
+        for (const block of blocks) ctx.fillRect(block.x - cameraX, block.y - cameraY, block.width, block.height);
 
         ctx.fillStyle = 'purple';
-        for (const obs of obstacles) ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        for (const obs of obstacles) ctx.fillRect(obs.x - cameraX, obs.y - cameraY, obs.width, obs.height);
 
         ctx.fillStyle = 'gold';
-        for (const gbs of gate) ctx.fillRect(gbs.x, gbs.y, gbs.width, gbs.height);
+        for (const gbs of gate) ctx.fillRect(gbs.x - cameraX, gbs.y - cameraY, gbs.width, gbs.height);
 
         ctx.fillStyle = 'red';
         ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.arc(ball.x - cameraX, ball.y - cameraY, ball.radius, 0, Math.PI * 2);
         ctx.fill();
       }
 
