@@ -8,7 +8,6 @@
     body {
       margin: 0;
       overflow: hidden;
-      display: flex;
     }
 
     canvas {
@@ -26,6 +25,7 @@
       justify-content: space-between;
       padding: 0 20px;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     .left-controls {
@@ -177,25 +177,31 @@
       { x: 830, y: 120, width: 30, height: 40, mov: false },
     ];
 
-    document.getElementById('startBtn').addEventListener('click', () => {
+    function requestFull() {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
       }
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      requestFull();
       document.getElementById('startBtn').style.display = 'none';
 
       const leftBtn = document.getElementById('leftBtn');
       const rightBtn = document.getElementById('rightBtn');
       const upBtn = document.getElementById('upBtn');
 
-      leftBtn.addEventListener('pointerdown', () => ball.dx = -3);
-      rightBtn.addEventListener('pointerdown', () => ball.dx = 3);
-      upBtn.addEventListener('pointerdown', () => { if (ball.onGround) ball.dy = jumpPower; });
+      function bindControl(btn, onDown, onUp) {
+        btn.addEventListener('touchstart', e => { e.preventDefault(); requestFull(); onDown(); });
+        btn.addEventListener('pointerdown', e => { e.preventDefault(); requestFull(); onDown(); });
 
-      leftBtn.addEventListener('pointerup', () => ball.dx = 0);
-      rightBtn.addEventListener('pointerup', () => ball.dx = 0);
+        btn.addEventListener('touchend', e => { e.preventDefault(); onUp(); });
+        btn.addEventListener('pointerup', e => { e.preventDefault(); onUp(); });
+      }
 
-      leftBtn.addEventListener('pointercancel', (e) => { e.preventDefault(); ball.dx = 0; });
-      rightBtn.addEventListener('pointercancel', (e) => { e.preventDefault(); ball.dx = 0; });
+      bindControl(leftBtn, () => ball.dx = -3, () => ball.dx = 0);
+      bindControl(rightBtn, () => ball.dx = 3, () => ball.dx = 0);
+      bindControl(upBtn, () => { if (ball.onGround) ball.dy = jumpPower; }, () => {});
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight') ball.dx = 3;
