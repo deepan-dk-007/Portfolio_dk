@@ -76,6 +76,42 @@ u {
   text-decoration: underline blue;
   color: blue;
 }
+/* LIGHT MODE */
+
+body.lt{
+    background-color:#ffffff;
+    color:#111;
+}
+/* navbar */
+body.lt .navbar{
+    background:white;
+    color:black;
+}
+
+/* sidebar */
+body.lt .mbar{
+    color:black;
+}
+
+/* cards */
+body.lt .projects button{
+    background:#f5f5f5;
+    color:black;
+    border:1px solid #ddd;
+}
+
+/* inputs */
+body.lt .fi{
+    background:white;
+    color:black;
+    border:1px solid #ccc;
+}
+
+/* modal */
+body.lt .modal-content{
+    background:white;
+    color:black;
+}
 /* ------------------------------ */
 /* Animations */
 /* ------------------------------ */
@@ -228,7 +264,6 @@ background:rgba(0,0,0,0.7);
 
 .mitems{
   list-style:none;
-  margin-top:40px;
   left: 0;
   top: 0;
 }
@@ -261,13 +296,7 @@ background:rgba(0,0,0,0.7);
   width: 0;
   padding: 10px 0;
   color: #ffffff;
-  background-color: red;
 }
-
-.sp:hover {
-  color: red;
-}
-
 .fun {
   color: rgba(155, 147, 147, 0.993);
   text-align: center;
@@ -584,7 +613,9 @@ color:#000;
 font-size: 500%;
 --transition: 1s ease;
  }
- 
+ .micon{
+ display: block;
+ }
 }</style>
 </head>
 
@@ -616,7 +647,7 @@ font-size: 500%;
     <label class="fun">
             <h2>DK WEBZ</h2>
     </label>
-    <button class="tb">Light</button>
+    <button class="tb">Light Mode</button>
     <button class="sp">×</button>
     <ul class="mitems">
         <li><a class="mn" href="#h">Home</a></li>
@@ -639,13 +670,13 @@ font-size: 500%;
        <a href="#p"><button data-aos="fade-left" class="hbt2"><h3>See My Work</h3></button></a>
         <nav class="ao">
             <div class="a1">
-            <a href="https://www.instagram.com/">
+            <a href="https://www.instagram.com/__itz_me_dk___/">
             <i style="color: rgb(240, 56, 111);" class="fa-brands fa-instagram"></i></a></div>
             <div class="a2">
             <a href="https://www.facebook.com/"><i style="color: blue;" class="fa-brands fa-facebook"> </i></a></div>
             <div class="a3">
-            <a href="https://x.com/Itz_me_dk__/photo/">
-            <i style="color: rgb(102, 95, 95);" class="fa-brands fa-x-twitter"></i></a></div>
+            <a href="https://x.com/Itz_me_dk__/">
+            <i style="color: rgb(209, 196, 196);" class="fa-brands fa-x-twitter"></i></a></div>
             <div class="a4">
             <a href="https://in.linkedin.com/in/deepan-karthick-183116371/">
             <i style="color:darkblue;background:linear-gradient(transparent,white,white,white,transparent);" class="fa-brands fa-linkedin"></i></a></div></nav>
@@ -770,11 +801,11 @@ font-size: 500%;
             </form>
 
     <nav class="go">
-            <div class="f1"><a href="https://www.instagram.com/"><i style="color: rgb(240, 56, 111);" class="fa-brands fa-instagram"></i></a></div>
+            <div class="f1"><a href="https://www.instagram.com/__itz_me_dk___/"><i style="color: rgb(240, 56, 111);" class="fa-brands fa-instagram"></i></a></div>
             <div class="f2"><a href="https://www.facebook.com/"><i style="color: blue;" class="fa-brands fa-facebook"> </i></a></div>
-            <div class="f3"><a href="https://x.com/Itz_me_dk__/photo/"><i style="color: rgb(105, 97, 97);" class="fa-brands fa-x-twitter"></i></a></div>
+            <div class="f3"><a href="https://x.com/Itz_me_dk__/"><i style="color: rgb(235, 227, 227);" class="fa-brands fa-x-twitter"></i></a></div>
             <div class="f4"><a href="https://in.linkedin.com/in/deepan-karthick-183116371/"><i style="color:darkblue;background:linear-gradient(transparent,white,white,white,transparent);" class="fa-brands fa-linkedin"></i></a></div>
-             <div class="f5"><a href="https://github.com/"><i style="color: #000;" class="fa-brands fa-github"></i></a></div>
+             <div class="f5"><a href="https://github.com/deepan-dk-007/"><i style="color: #000;" class="fa-brands fa-github"></i></a></div>
         </section>
 <hr>
 <footer class="xy">
@@ -869,7 +900,9 @@ agro: `
 <p>
 A science project featuring an agricultural rover for spraying and soil monitoring. Prototype was featured in the local newspaper on Science Day 2024.
 </p>
-<img width="300" height="200" href="https://deepan-dk-007.github.io/Portfolio_dknews.jpg">
+<img
+                src="https://github.com/deepan-dk-007/Portfolio_dk/blob/dkport.html/dknews.jpg?raw=true"
+                alt="image" style="width: 450px;height:450px;filter: none;">
 `
 };
 
@@ -891,17 +924,12 @@ document.getElementById("projectModal").style.display = "none";
         });
        
          tbtn.addEventListener('click', () => {
-
-             document.body.classList.toggle('lt');
-             
-             if(document.body.classList.contains('lt'))
-             {
-              tbtn.textContent="Dark";
-             }
-             else{
-              tbtn.textContent="Light"
-             }
-        });
+         document.body.classList.toggle('lt');
+         if(document.body.classList.contains('lt')){
+         tbtn.textContent="Dark Mode";}
+         else{
+         tbtn.textContent="Light Mode";}
+         });
 
         AOS.init({
             duration: 1000,
