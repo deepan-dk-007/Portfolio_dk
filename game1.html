@@ -594,18 +594,25 @@ const loseSound = document.getElementById("loseSound");
       bindControl(rightBtn, () => ball.dx = 3, () => ball.dx = 0);
       bindControl(upBtn, () => 
       { 
-       if (ball.onGround) {
-
     jumpSound.currentTime = 0;
     jumpSound.play();
-    ball.dy = jumpPower;
-} 
-      }, () => {});
+
+    if (ball.onGround) {
+        ball.dy = jumpPower;
+    }
+
+}, () => {});
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight') ball.dx = 3;
         if (e.key === 'ArrowLeft') ball.dx = -3;
-        if (e.key === 'ArrowUp' && ball.onGround) ball.dy = jumpPower;
+      if (e.key === 'ArrowUp' && ball.onGround) {
+
+    jumpSound.currentTime = 0;
+    jumpSound.play();
+
+    ball.dy = jumpPower;
+}
       });
 
       document.addEventListener('keyup', (e) => {
@@ -760,6 +767,7 @@ const loseSound = document.getElementById("loseSound");
           ) {
             loseSound.currentTime = 0;
             loseSound.play();
+
             playAgainOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
           }
@@ -781,6 +789,9 @@ const loseSound = document.getElementById("loseSound");
             ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
             ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
           ) {
+            loseSound.currentTime = 0;
+            loseSound.play();
+
             playAgainOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
           }
@@ -794,7 +805,8 @@ const loseSound = document.getElementById("loseSound");
             //gbs.x = 830; gbs.y = 610; gbs.mov = true;
             winSound.currentTime = 0;
             winSound.play();
-             youWinOverlay.style.display = 'block';
+
+            youWinOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
           }
           //if (
