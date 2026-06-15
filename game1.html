@@ -40,18 +40,17 @@
       padding-right: 45px;
     }
 
-#controls button {
-  background-color: white;
-  border: none;
-  padding: 15px 30px;
-  font-size: 25px;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: none;
-}
+    #controls button {
+      background-color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
 
     #rotateNotice {
       display: none;
@@ -141,21 +140,16 @@
 
     #levelMenu {
       display: none;
-
       position: fixed;
       top: 50%;
       left: 50%;
-
       transform: translate(-50%, -50%);
-
       background: black;
       color: white;
       border: 3px solid white;
       border-radius: 20px;
-
       padding: 30px;
       z-index: 3000;
-
       text-align: center;
     }
 
@@ -196,8 +190,8 @@
       top: 60%;
       left: 75%;
       transform: translate(-50%, -50%);
-      padding: 15px 25px;
-      border-radius: 10px;
+      padding: 1px;
+      border-radius: 20px;
       background: black;
       color: red;
       border: 1px solid white;
@@ -207,23 +201,16 @@
 
     #settingsMenu {
       display: none;
-
       position: fixed;
       top: 50%;
       left: 50%;
-
       transform: translate(-50%, -50%);
-
       background: black;
       color: white;
-
       border: 3px solid white;
       border-radius: 20px;
-
       padding: 30px;
-
       z-index: 5000;
-
       min-width: 300px;
     }
 
@@ -239,8 +226,8 @@
       top: 60%;
       left: 27%;
       transform: translate(-50%, -50%);
-      padding: 15px 25px;
-      border-radius: 10px;
+      padding: 5px;
+      border-radius: 20px;
       background: black;
       color: red;
       border: 1px solid white;
@@ -250,25 +237,17 @@
 
     #aboutMenu {
       display: none;
-
       position: fixed;
       top: 50%;
       left: 50%;
-
       transform: translate(-50%, -50%);
-
       background: black;
       color: white;
-
       border: 3px solid white;
-      border-radius: 20px;
-
+      border-radius: 30px;
       padding: 30px;
-
       text-align: center;
-
       z-index: 5000;
-
       width: 350px;
     }
 
@@ -385,20 +364,11 @@
   <div id="playAgainOverlay" class="centerOverlay">Play Again</div>
   <div id="youWinOverlay" class="centerOverlay">You Win</div>
   <script>
-    const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('orientationchange', resizeCanvas);
      // =======================
     // CANVAS
     // =======================
-    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
     // =======================
     // PLAYER
@@ -567,7 +537,7 @@ window.addEventListener('orientationchange', resizeCanvas);
         const level = Number(btn.innerText);
 
         // Levels 3-10 aren't built yet - show a Coming Soon message
-        if (level > 2) {
+        if (level > 3) {
           alert("🚧 Level " + level + " - Coming Soon!");
           return;
         }
@@ -603,43 +573,27 @@ window.addEventListener('orientationchange', resizeCanvas);
       const rightBtn = document.getElementById('rightBtn');
       const upBtn = document.getElementById('upBtn');
 
-      let leftPressed = false;
-let rightPressed = false;
+      function bindControl(btn, onDown, onUp) {
+        btn.addEventListener('touchstart', e => { e.preventDefault(); requestFull(); onDown(); });
+        btn.addEventListener('pointerdown', e => { e.preventDefault(); requestFull(); onDown(); });
 
-function updateMovement() {
-  if (leftPressed && !rightPressed) ball.dx = -3;
-  else if (rightPressed && !leftPressed) ball.dx = 3;
-  else ball.dx = 0;
-}
+        btn.addEventListener('touchend', e => { e.preventDefault(); onUp(); });
+        btn.addEventListener('pointerup', e => { e.preventDefault(); onUp(); });
+      }
 
-function tryJump() {
-  if (ball.onGround) ball.dy = jumpPower;
-}
+      bindControl(leftBtn, () => ball.dx = -3, () => ball.dx = 0);
+      bindControl(rightBtn, () => ball.dx = 3, () => ball.dx = 0);
+      bindControl(upBtn, () => { if (ball.onGround) ball.dy = jumpPower; }, () => {});
 
-function bindControl(btn, onDown, onUp) {
-  const down = (e) => { e.preventDefault(); onDown(); };
-  const up = (e) => { e.preventDefault(); onUp(); };
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') ball.dx = 3;
+        if (e.key === 'ArrowLeft') ball.dx = -3;
+        if (e.key === 'ArrowUp' && ball.onGround) ball.dy = jumpPower;
+      });
 
-  btn.addEventListener('pointerdown', down);
-  btn.addEventListener('pointerup', up);
-  btn.addEventListener('pointercancel', up);
-  btn.addEventListener('pointerleave', up);
-}
-
-bindControl(leftBtn, () => { leftPressed = true; updateMovement(); }, () => { leftPressed = false; updateMovement(); });
-bindControl(rightBtn, () => { rightPressed = true; updateMovement(); }, () => { rightPressed = false; updateMovement(); });
-bindControl(upBtn, () => tryJump(), () => {});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight') { rightPressed = true; updateMovement(); }
-  if (e.key === 'ArrowLeft') { leftPressed = true; updateMovement(); }
-  if (e.key === 'ArrowUp') tryJump();
-});
-
-document.addEventListener('keyup', (e) => {
-  if (e.key === 'ArrowRight') { rightPressed = false; updateMovement(); }
-  if (e.key === 'ArrowLeft') { leftPressed = false; updateMovement(); }
-});
+      document.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
+      });
 
       playAgainOverlay = document.getElementById('playAgainOverlay');
       youWinOverlay = document.getElementById('youWinOverlay');
@@ -818,16 +772,17 @@ document.addEventListener('keyup', (e) => {
             ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
             ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.width && !gbs.mov
           ) {
-            gbs.x = 830; gbs.y = 610; gbs.mov = true;
-          }
-          if (
-            ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
-            ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.height
-          ) {
-            youWinOverlay.style.display = 'block';
+            //gbs.x = 830; gbs.y = 610; gbs.mov = true;
+             youWinOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
           }
-        }
+          //if (
+            //ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
+            //ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.height
+          //) {
+            //youWinOverlay.style.display = 'block';
+            //cancelAnimationFrame(anim);
+          }
       }
 
       function draw() {
@@ -939,7 +894,7 @@ document.addEventListener('keyup', (e) => {
       airBlocks = [];
       bombBlocks = [];
 
-      if (level == 1) {
+      if (level == 2) {
         ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
         gravity = 0.5;
         jumpPower = -15;
@@ -1001,7 +956,7 @@ document.addEventListener('keyup', (e) => {
         ];
       }
 
-      if (level == 2) {
+      if (level == 3) {
         ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
         gravity = 0.5;
         jumpPower = -10;
@@ -1044,8 +999,38 @@ document.addEventListener('keyup', (e) => {
           { x: 830, y: 120, width: 30, height: 40, mov: false }
         ];
       }
+      if(level==1){
+         ball = { x: 1100, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
+        gravity = 0.25;
+        jumpPower = -7;
 
-      // Make sure the coin HUD reflects the saved total whenever a level loads
+        blocks = [
+          { x: 30, y: 630, width: 3500, height: 1000 },
+          { x: 30, y: 630, width: 450, height: 2000 },
+          { x: 1200, y: 30, width: 1000, height: 1500 },
+          { x: 1800, y: 1600, width: 1001, height: 200 },
+          { x: 1000, y: 10, width: 100, height: 20 },
+          { x: -50, y: 680, width: 100, height: 70 },
+           { x: -250, y: 680, width: 100, height: 20 },
+        ];
+          
+        obstacles = [
+          { x: 850, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -2 },
+          { x: 950, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -1 },
+         { x: 650, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -7 },
+          { x: 750, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5 },
+          { x: 550, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -2 },
+          { x: 450, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -6 },
+          { x: 350, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -7 },
+          { x: 250, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -4 },
+        { x: 150, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5 },
+          { x: 100, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -10 },
+        ];
+
+        gate = [
+          { x: -250, y: 630, width: 20, height: 20 ,mov: false },
+        ];}
+
       updateCoinHUD();
     }
   </script>
