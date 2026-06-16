@@ -393,7 +393,7 @@
   const jumpSound = document.getElementById("jumpSound");
 const winSound = document.getElementById("winSound");
 const loseSound = document.getElementById("loseSound");
-   
+let gameOver = false;
     // =======================
     // GAME VARIABLES
     // =======================
@@ -767,7 +767,9 @@ const loseSound = document.getElementById("loseSound");
           ) {
             loseSound.currentTime = 0;
             loseSound.play();
-
+            gameOver = true;
+            ball.dx=0;
+            ball.dy=0;
             playAgainOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
           }
@@ -791,6 +793,10 @@ const loseSound = document.getElementById("loseSound");
           ) {
             loseSound.currentTime = 0;
             loseSound.play();
+            gameOver= true;
+            ball.dx=0;
+            ball.dy=0;
+          
 
             playAgainOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
@@ -805,6 +811,7 @@ const loseSound = document.getElementById("loseSound");
             //gbs.x = 830; gbs.y = 610; gbs.mov = true;
             winSound.currentTime = 0;
             winSound.play();
+            gameOver = true;
 
             youWinOverlay.style.display = 'block';
             cancelAnimationFrame(anim);
