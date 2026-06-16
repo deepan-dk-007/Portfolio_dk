@@ -18,12 +18,12 @@
     }
 
     #controls {
+      /* Hidden on main menu - shown only during gameplay */
+      display: none;
       position: absolute;
       width: 100%;
       bottom: 20px;
-      display: flex;
       justify-content: space-between;
-
       user-select: none;
       -webkit-user-select: none;
     }
@@ -49,7 +49,8 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      touch-action: none;
     }
 
     #rotateNotice {
@@ -66,7 +67,7 @@
       padding: 30px;
     }
 
-    /* Coin HUD - shown during gameplay */
+    /* Coin HUD */
     #coinHUD {
       display: none;
       position: absolute;
@@ -83,7 +84,6 @@
       user-select: none;
     }
 
-    /* Start Game button - fixed the absurd padding that was covering the screen */
     #startBtn {
       position: absolute;
       top: 30%;
@@ -168,21 +168,35 @@
       cursor: pointer;
     }
 
+    /* Overlay: frozen dark sheet over a paused canvas */
     .centerOverlay {
       display: none;
       position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 1001;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .centerOverlay .overlay-box {
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       background: black;
       color: white;
-      padding: 50px 100px;
+      padding: 40px 80px;
       font-size: 30px;
       border: 3px solid white;
       border-radius: 10px;
-      z-index: 1001;
-      cursor: pointer;
-      user-select: none;
+      text-align: center;
+    }
+
+    .centerOverlay .overlay-box .coins-won {
+      font-size: 18px;
+      color: gold;
+      margin-top: 10px;
     }
 
     #settingsBtn {
@@ -251,30 +265,30 @@
       width: 350px;
     }
 
-    #closeAbout {
-      margin-top: 20px;
-      padding: 10px 20px;
-    }
-
-    #closeSettings,
-    #resetProgress {
-      width: 100%;
-      margin-top: 15px;
-      padding: 10px;
-    }
+    #closeAbout { margin-top: 20px; padding: 10px 20px; }
+    #closeSettings, #resetProgress { width: 100%; margin-top: 15px; padding: 10px; }
   </style>
 </head>
 <body>
 
   <canvas id="gameCanvas" width="900" height="1000"></canvas>
-  <audio id="jumpSound" src="jump.mp3"></audio>
-  <audio id="winSound" src="won.mp3"></audio>
-  <audio id="loseSound" src="lose.mp3"></audio>
+
+  <!-- =======================
+       SOUNDS
+  ======================== -->
+  <audio id="jumpSound"     src="jump.mp3"     preload="auto"></audio>
+  <audio id="winSound"      src="won.mp3"      preload="auto"></audio>
+  <audio id="loseSound"     src="lose.mp3"     preload="auto"></audio>
+  <audio id="coinSound"     src="coin.mp3"     preload="auto"></audio>
+  <audio id="bounceSound"   src="bounce.mp3"   preload="auto"></audio>
+  <audio id="bombSound"     src="bomb.mp3"     preload="auto"></audio>
+  <audio id="airSound"      src="air.mp3"      preload="auto"></audio>
+  <audio id="mobSound"      src="mob.mp3"      preload="auto"></audio>
 
   <!-- COIN HUD -->
   <div id="coinHUD">🪙 0</div>
 
-  <!-- CONTROLS -->
+  <!-- CONTROLS  -->
   <div id="controls">
     <div class="left-controls">
       <button id="leftBtn">◀️</button>
@@ -289,15 +303,11 @@
     📱 Please rotate your device to <strong>landscape</strong> mode to play the game!
   </div>
 
-  <!-- START GAME SECTION -->
-  <div>
-    <button id="startBtn"><h1>Start Game</h1></button>
-  </div>
+  <!-- START GAME -->
+  <div><button id="startBtn"><h1>Start Game</h1></button></div>
 
-  <!-- LEVELS SECTION -->
-  <div>
-    <button id="lvlbtn"><h2>LEVELS</h2></button>
-  </div>
+  <!-- LEVELS -->
+  <div><button id="lvlbtn"><h2>LEVELS</h2></button></div>
 
   <div id="levelMenu">
     <h2>Select Level</h2>
@@ -316,10 +326,8 @@
     <button id="closeLevels">Close</button>
   </div>
 
-  <!-- SETTINGS SECTION -->
-  <div>
-    <button id="settingsBtn"><h2>SETTINGS</h2></button>
-  </div>
+  <!-- SETTINGS -->
+  <div><button id="settingsBtn"><h2>SETTINGS</h2></button></div>
 
   <div id="settingsMenu">
     <h2>⚙️ SETTINGS</h2>
@@ -350,10 +358,8 @@
     <button id="closeSettings">Close</button>
   </div>
 
-  <!-- ABOUT SECTION -->
-  <div>
-    <button id="aboutBtn"><h2>ABOUT</h2></button>
-  </div>
+  <!-- ABOUT -->
+  <div><button id="aboutBtn"><h2>ABOUT</h2></button></div>
 
   <div id="aboutMenu">
     <h2>🎮 DK GAMEZ</h2>
@@ -364,36 +370,85 @@
     <button id="closeAbout">Close</button>
   </div>
 
-  <div id="playAgainOverlay" class="centerOverlay">Play Again</div>
-  <div id="youWinOverlay" class="centerOverlay">You Win</div>
+  <!-- OVERLAYS: full-screen dark sheet so game is frozen behind them -->
+  <div id="playAgainOverlay" class="centerOverlay">
+    <div class="overlay-box">
+      💀 Game Over
+      <div class="coins-won" id="loseCoinsMsg"></div>
+      <div style="font-size:18px; margin-top:14px;">Tap to Play Again</div>
+    </div>
+  </div>
+
+  <div id="youWinOverlay" class="centerOverlay">
+    <div class="overlay-box">
+      🏆 You Win!
+      <div class="coins-won" id="winCoinsMsg"></div>
+      <div style="font-size:18px; margin-top:14px;">Tap to Continue</div>
+    </div>
+  </div>
+
   <script>
-     // =======================
-    // CANVAS
+    // =======================
+    // CANVAS — responsive
     // =======================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
+    // =======================
+    // SOUNDS
+    // =======================
+    const jumpSound   = document.getElementById('jumpSound');
+    const winSound    = document.getElementById('winSound');
+    const loseSound   = document.getElementById('loseSound');
+    const coinSound   = document.getElementById('coinSound');   // plays when coin collected
+    const bounceSound = document.getElementById('bounceSound'); // plays on jump-block bounce
+    const bombSound   = document.getElementById('bombSound');   // plays on bomb-block hit
+    const airSound    = document.getElementById('airSound');    // plays while inside air-block
+    const mobSound    = document.getElementById('mobSound');    // plays when landing on moving platform
+
+    function playSound(audio) {
+      if (!soundToggle.checked) return;
+      try { audio.currentTime = 0; audio.play(); } catch(e) {}
+    }
+
+    // =======================
+    // IMAGES
+    // =======================
+    const imgBg        = new Image(); imgBg.src        = 'sky.jpg';       // canvas background
+    const imgBall      = new Image(); imgBall.src      = 'ball.png';      // player
+    const imgBlock     = new Image(); imgBlock.src     = 'block.png';     // solid platforms
+    const imgMob       = new Image(); imgMob.src       = 'mob.png';       // moving platforms
+    const imgObstacle  = new Image(); imgObstacle.src  = 'obstacle.png';  // hazard obstacles
+    const imgGate      = new Image(); imgGate.src      = 'gate.png';      // finish / goal
+    const imgCoin      = new Image(); imgCoin.src      = 'coin.png';      // collectible coin
+    const imgJump      = new Image(); imgJump.src      = 'jumppad.png';   // bounce pad
+    const imgAir       = new Image(); imgAir.src       = 'fan.png';       // air / wind block
+    const imgBomb      = new Image(); imgBomb.src      = 'bomb.png';      // bomb block
+
+    function drawImg(img, color, x, y, w, h) {
+      if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, x, y, w, h);
+      } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, w, h);
+      }
+    }
+
     // =======================
     // PLAYER
     // =======================
-    ball = {
-      x: 830,
-      y: 630,
-      radius: 10,
-      dx: 0,
-      dy: 0,
-      onGround: false
-    };
-
-    gravity = 0.5;
+    ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
+    gravity  = 0.5;
     jumpPower = -10;
-     // =======================
-    // SOUND VARIABLES
-    // =======================
-  const jumpSound = document.getElementById("jumpSound");
-const winSound = document.getElementById("winSound");
-const loseSound = document.getElementById("loseSound");
-let gameOver = false;
+
     // =======================
     // GAME VARIABLES
     // =======================
@@ -401,156 +456,82 @@ let gameOver = false;
     let cameraX = 0;
     let cameraY = 0;
     let anim;
+    let gameRunning = false;
 
     // =======================
     // LEVEL DATA
     // =======================
-    let blocks = [];
-    let obstacles = [];
-    let mobstacles = [];   // moving platforms (ride them)
-    let gate = [];
+    let blocks = [], obstacles = [], mobstacles = [], gate = [];
+    let coins = [], jumpBlocks = [], airBlocks = [], bombBlocks = [];
 
     // =======================
-    // NEW LEVEL-DESIGN ELEMENTS
+    // COIN STORAGE
     // =======================
-    let coins = [];         // collectible coins
-    let jumpBlocks = [];     // bounce pads - boost the ball's jump
-    let airBlocks = [];      // wind / air-blow blocks - push the ball
-    let bombBlocks = [];     // bomb blocks - hazard, ends the run on touch
+    let coinsCollected = 0;
+    let totalCoins = Number(localStorage.getItem('totalCoins')) || 0;
 
-    // =======================
-    // COIN STORAGE (persists between sessions)
-    // =======================
-    let coinsCollected = 0; // coins collected in the current run
-    let totalCoins = Number(localStorage.getItem("totalCoins")) || 0;
-
-    const coinHUD = document.getElementById("coinHUD");
-
-    function updateCoinHUD() {
-      coinHUD.textContent = "🪙 " + totalCoins;
-    }
+    const coinHUD = document.getElementById('coinHUD');
+    function updateCoinHUD() { coinHUD.textContent = '🪙 ' + totalCoins; }
     updateCoinHUD();
 
     // =======================
-    // SETTINGS ELEMENTS
+    // SETTINGS
     // =======================
-    const soundToggle = document.getElementById("soundToggle");
-    const vibrationToggle = document.getElementById("vibrationToggle");
-    const themeSelect = document.getElementById("themeSelect");
+    const soundToggle     = document.getElementById('soundToggle');
+    const vibrationToggle = document.getElementById('vibrationToggle');
+    const themeSelect     = document.getElementById('themeSelect');
 
-    // =======================
-    // FULLSCREEN
-    // =======================
     function requestFull() {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      }
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
     }
 
-    // =======================
-    // ABOUT MENU
-    // =======================
-    const aboutBtn = document.getElementById("aboutBtn");
-    const aboutMenu = document.getElementById("aboutMenu");
-    const closeAbout = document.getElementById("closeAbout");
+    // About
+    document.getElementById('aboutBtn').addEventListener('click', () => document.getElementById('aboutMenu').style.display = 'block');
+    document.getElementById('closeAbout').addEventListener('click', () => document.getElementById('aboutMenu').style.display = 'none');
 
-    aboutBtn.addEventListener("click", () => {
-      aboutMenu.style.display = "block";
+    // Settings
+    const settingsMenu = document.getElementById('settingsMenu');
+    document.getElementById('settingsBtn').addEventListener('click', () => settingsMenu.style.display = 'block');
+    document.getElementById('closeSettings').addEventListener('click', () => settingsMenu.style.display = 'none');
+
+    document.getElementById('controlSize').addEventListener('change', (e) => {
+      let size = '15px 30px';
+      if (e.target.value === 'small') size = '10px 20px';
+      if (e.target.value === 'large') size = '25px 45px';
+      document.querySelectorAll('#controls button').forEach(b => b.style.padding = size);
     });
 
-    closeAbout.addEventListener("click", () => {
-      aboutMenu.style.display = "none";
+    themeSelect.addEventListener('change', (e) => {
+      document.body.style.background = e.target.value === 'light' ? 'white' : 'black';
+      canvas.style.background = e.target.value === 'light' ? '#ddd' : '#222';
+      localStorage.setItem('theme', e.target.value);
     });
 
-    // =======================
-    // SETTINGS MENU
-    // =======================
-    const settingsBtn = document.getElementById("settingsBtn");
-    const settingsMenu = document.getElementById("settingsMenu");
-    const closeSettings = document.getElementById("closeSettings");
+    soundToggle.addEventListener('change', () => localStorage.setItem('sound', soundToggle.checked));
+    vibrationToggle.addEventListener('change', () => localStorage.setItem('vibration', vibrationToggle.checked));
 
-    settingsBtn.addEventListener("click", () => {
-      settingsMenu.style.display = "block";
-    });
+    document.getElementById('resetProgress').addEventListener('click', () => { localStorage.clear(); location.reload(); });
 
-    closeSettings.addEventListener("click", () => {
-      settingsMenu.style.display = "none";
-    });
-
-    document.getElementById("controlSize").addEventListener("change", (e) => {
-      let size = "15px 30px";
-
-      if (e.target.value === "small") size = "10px 20px";
-      if (e.target.value === "large") size = "25px 45px";
-
-      document.querySelectorAll("#controls button").forEach(btn => {
-        btn.style.padding = size;
-      });
-    });
-
-    themeSelect.addEventListener("change", (e) => {
-      if (e.target.value === "light") {
-        document.body.style.background = "white";
-        canvas.style.background = "#ddd";
-      } else {
-        document.body.style.background = "black";
-        canvas.style.background = "#222";
-      }
-
-      localStorage.setItem("theme", e.target.value);
-    });
-
-    soundToggle.addEventListener("change", () => {
-      localStorage.setItem("sound", soundToggle.checked);
-    });
-
-    vibrationToggle.addEventListener("change", () => {
-      localStorage.setItem("vibration", vibrationToggle.checked);
-    });
-
-    document.getElementById("resetProgress").addEventListener("click", () => {
-      localStorage.clear();
-      location.reload();
-    });
-
-    // Restore saved settings on load
-    window.addEventListener("load", () => {
-      const savedSound = localStorage.getItem("sound");
-      const savedVibration = localStorage.getItem("vibration");
-      const savedTheme = localStorage.getItem("theme");
-
-      if (savedSound !== null) soundToggle.checked = savedSound === "true";
-      if (savedVibration !== null) vibrationToggle.checked = savedVibration === "true";
-
-      if (savedTheme) {
-        themeSelect.value = savedTheme;
-        themeSelect.dispatchEvent(new Event("change"));
-      }
+    window.addEventListener('load', () => {
+      const s = localStorage.getItem('sound');
+      const v = localStorage.getItem('vibration');
+      const t = localStorage.getItem('theme');
+      if (s !== null) soundToggle.checked = s === 'true';
+      if (v !== null) vibrationToggle.checked = v === 'true';
+      if (t) { themeSelect.value = t; themeSelect.dispatchEvent(new Event('change')); }
     });
 
     // =======================
-    // LEVEL SELECT MENU
+    // LEVEL SELECT
     // =======================
-    const levelMenu = document.getElementById("levelMenu");
+    const levelMenu = document.getElementById('levelMenu');
+    document.getElementById('lvlbtn').addEventListener('click', () => levelMenu.style.display = 'block');
+    document.getElementById('closeLevels').addEventListener('click', () => levelMenu.style.display = 'none');
 
-    document.getElementById("lvlbtn").addEventListener("click", () => {
-      levelMenu.style.display = "block";
-    });
-
-    document.getElementById("closeLevels").addEventListener("click", () => {
-      levelMenu.style.display = "none";
-    });
-
-    document.querySelectorAll(".levelBtn").forEach(btn => {
-      btn.addEventListener("click", () => {
+    document.querySelectorAll('.levelBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
         const level = Number(btn.innerText);
-
-        // Levels 3-10 aren't built yet - show a Coming Soon message
-        if (level > 3) {
-          alert("🚧 Level " + level + " - Coming Soon!");
-          return;
-        }
-
+        if (level > 3) { alert('🚧 Level ' + level + ' — Coming Soon!'); return; }
         selectedLevel = level;
         loadLevel(level);
         levelMenu.style.display = 'none';
@@ -558,143 +539,139 @@ let gameOver = false;
     });
 
     // =======================
+    // TRIGGER WIN / LOSE 
+    // =======================
+    function triggerLose() {
+      if (!gameRunning) return;
+      gameRunning = false;
+      cancelAnimationFrame(anim);
+      playSound(loseSound);
+      ball=onGround = true; 
+      document.getElementById('loseCoinsMsg').textContent = '🪙 Coins this run: ' + coinsCollected;
+      document.getElementById('playAgainOverlay').style.display = 'block';
+    }
+
+    function triggerWin() {
+      if (!gameRunning) return;
+      gameRunning = false;
+      cancelAnimationFrame(anim);
+      playSound(winSound);
+      ball=onGround = true; 
+      document.getElementById('winCoinsMsg').textContent = '🪙 Coins this run: ' + coinsCollected;
+      document.getElementById('youWinOverlay').style.display = 'block';
+    }
+
+    document.getElementById('playAgainOverlay').addEventListener('click', () => location.reload());
+    document.getElementById('youWinOverlay').addEventListener('click', () => location.reload());
+
+    // =======================
     // START GAME
     // =======================
     document.getElementById('startBtn').addEventListener('click', () => {
-
       loadLevel(selectedLevel);
-
-      document.getElementById('startBtn').style.display = 'none';
       requestFull();
-      document.getElementById('lvlbtn').style.display = 'none';
+
+      // Hide menu buttons
+      document.getElementById('startBtn').style.display  = 'none';
+      document.getElementById('lvlbtn').style.display    = 'none';
       document.getElementById('settingsBtn').style.display = 'none';
-      document.getElementById('aboutBtn').style.display = 'none';
-
-      // In case any menu was left open
-      levelMenu.style.display = 'none';
+      document.getElementById('aboutBtn').style.display  = 'none';
+      levelMenu.style.display   = 'none';
       settingsMenu.style.display = 'none';
-      aboutMenu.style.display = 'none';
+      document.getElementById('aboutMenu').style.display = 'none';
 
-      // Show the coin counter
+      // Show gameplay UI
       coinHUD.style.display = 'block';
+      document.getElementById('controls').style.display = 'flex';
 
-      const leftBtn = document.getElementById('leftBtn');
+      gameRunning = true;
+
+      // =======================
+      // CONTROLS 
+      // =======================
+      const leftBtn  = document.getElementById('leftBtn');
       const rightBtn = document.getElementById('rightBtn');
-      const upBtn = document.getElementById('upBtn');
+      const upBtn    = document.getElementById('upBtn');
 
-      function bindControl(btn, onDown, onUp) {
-        btn.addEventListener('touchstart', e => { e.preventDefault(); requestFull(); onDown(); });
-        btn.addEventListener('pointerdown', e => { e.preventDefault(); requestFull(); onDown(); });
+      let leftPressed = false, rightPressed = false;
 
-        btn.addEventListener('touchend', e => { e.preventDefault(); onUp(); });
-        btn.addEventListener('pointerup', e => { e.preventDefault(); onUp(); });
+      function updateMovement() {
+        if      (leftPressed && !rightPressed) ball.dx = -3;
+        else if (rightPressed && !leftPressed) ball.dx =  3;
+        else                                   ball.dx =  0;
       }
 
-      bindControl(leftBtn, () => ball.dx = -3, () => ball.dx = 0);
-      bindControl(rightBtn, () => ball.dx = 3, () => ball.dx = 0);
-      bindControl(upBtn, () => 
-      { 
-    jumpSound.currentTime = 0;
-    jumpSound.play();
+      function tryJump() {
+        if (ball.onGround) {
+          ball.dy = jumpPower;
+          playSound(jumpSound);
+        }
+      }
 
-    if (ball.onGround) {
-        ball.dy = jumpPower;
-    }
+      function bindControl(btn, onDown, onUp) {
+        btn.addEventListener('pointerdown',  e => { e.preventDefault(); onDown(); });
+        btn.addEventListener('pointerup',    e => { e.preventDefault(); onUp(); });
+        btn.addEventListener('pointercancel',e => { e.preventDefault(); onUp(); });
+        btn.addEventListener('pointerleave', e => { e.preventDefault(); onUp(); });
+      }
 
-}, () => {});
+      bindControl(leftBtn,  () => { leftPressed  = true;  updateMovement(); }, () => { leftPressed  = false; updateMovement(); });
+      bindControl(rightBtn, () => { rightPressed = true;  updateMovement(); }, () => { rightPressed = false; updateMovement(); });
+      bindControl(upBtn,    () => tryJump(), () => {});
 
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') ball.dx = 3;
-        if (e.key === 'ArrowLeft') ball.dx = -3;
-      if (e.key === 'ArrowUp' && ball.onGround) {
-
-    jumpSound.currentTime = 0;
-    jumpSound.play();
-
-    ball.dy = jumpPower;
-}
+        if (e.key === 'ArrowRight') { rightPressed = true;  updateMovement(); }
+        if (e.key === 'ArrowLeft')  { leftPressed  = true;  updateMovement(); }
+        if (e.key === 'ArrowUp')    tryJump();
       });
-
       document.addEventListener('keyup', (e) => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ball.dx = 0;
+        if (e.key === 'ArrowRight') { rightPressed = false; updateMovement(); }
+        if (e.key === 'ArrowLeft')  { leftPressed  = false; updateMovement(); }
       });
 
-      playAgainOverlay = document.getElementById('playAgainOverlay');
-      youWinOverlay = document.getElementById('youWinOverlay');
-
-      playAgainOverlay.addEventListener('click', () => location.reload());
-      youWinOverlay.addEventListener('click', () => location.reload());
-
+      // =======================
+      // UPDATE
+      // =======================
       function update() {
         ball.x += ball.dx;
         ball.y += ball.dy;
         ball.dy += gravity;
-
         ball.onGround = false;
 
-        // Update camera to follow ball
-        cameraX = ball.x - canvas.width / 2;
+        cameraX = ball.x - canvas.width  / 2;
         cameraY = ball.y - canvas.height / 2;
 
+        // Solid blocks
         for (const block of blocks) {
-          const closestX = Math.max(block.x, Math.min(ball.x, block.x + block.width));
-          const closestY = Math.max(block.y, Math.min(ball.y, block.y + block.height));
-          const dx = ball.x - closestX;
-          const dy = ball.y - closestY;
-
-          if (dx * dx + dy * dy < ball.radius * ball.radius) {
-            const overlapX = ball.radius - Math.abs(dx);
-            const overlapY = ball.radius - Math.abs(dy);
-
-            if (overlapX < overlapY) {
-              ball.x += dx > 0 ? overlapX : -overlapX;
-              ball.dx = 0;
-            } else {
-              ball.y += dy > 0 ? overlapY : -overlapY;
-              ball.dy = 0;
-              if (dy < 0) ball.onGround = true;
-            }
+          const cx = Math.max(block.x, Math.min(ball.x, block.x + block.width));
+          const cy = Math.max(block.y, Math.min(ball.y, block.y + block.height));
+          const dx = ball.x - cx, dy = ball.y - cy;
+          if (dx*dx + dy*dy < ball.radius * ball.radius) {
+            const ox = ball.radius - Math.abs(dx);
+            const oy = ball.radius - Math.abs(dy);
+            if (ox < oy) { ball.x += dx > 0 ? ox : -ox; ball.dx = 0; }
+            else          { ball.y += dy > 0 ? oy : -oy; ball.dy = 0; if (dy < 0) ball.onGround = true; }
           }
         }
 
         // Moving platforms
         for (const mobs of mobstacles) {
-
-          if (mobs.dx) {
-            mobs.x += mobs.dx;
-            if (mobs.x > mobs.sx + 100) mobs.dx *= -1;
-            if (mobs.x < mobs.sx - 100) mobs.dx *= -1;
-          }
-
-          if (mobs.dy) {
-            mobs.y += mobs.dy;
-            if (mobs.y > mobs.sy + 100) mobs.dy *= -1;
-            if (mobs.y < mobs.sy - 100) mobs.dy *= -1;
-          }
-
-          const closestX = Math.max(mobs.x, Math.min(ball.x, mobs.x + mobs.width));
-          const closestY = Math.max(mobs.y, Math.min(ball.y, mobs.y + mobs.height));
-          const dx = ball.x - closestX;
-          const dy = ball.y - closestY;
-
-          if (dx * dx + dy * dy < ball.radius * ball.radius) {
-
-            const overlapX = ball.radius - Math.abs(dx);
-            const overlapY = ball.radius - Math.abs(dy);
-
-            if (overlapX < overlapY) {
-              ball.x += dx > 0 ? overlapX : -overlapX;
-              ball.dx = 0;
-            } else {
-              ball.y += dy > 0 ? overlapY : -overlapY;
-              ball.dy = 0;
-
+          if (mobs.dx) { mobs.x += mobs.dx; if (mobs.x > mobs.sx+100 || mobs.x < mobs.sx-100) mobs.dx *= -1; }
+          if (mobs.dy) { mobs.y += mobs.dy; if (mobs.y > mobs.sy+100 || mobs.y < mobs.sy-100) mobs.dy *= -1; }
+          const cx = Math.max(mobs.x, Math.min(ball.x, mobs.x + mobs.width));
+          const cy = Math.max(mobs.y, Math.min(ball.y, mobs.y + mobs.height));
+          const dx = ball.x - cx, dy = ball.y - cy;
+          if (dx*dx + dy*dy < ball.radius * ball.radius) {
+            const ox = ball.radius - Math.abs(dx);
+            const oy = ball.radius - Math.abs(dy);
+            if (ox < oy) { ball.x += dx > 0 ? ox : -ox; ball.dx = 0; }
+            else {
+              ball.y += dy > 0 ? oy : -oy; ball.dy = 0;
               if (dy < 0) {
                 ball.onGround = true;
-
-                // Carry player with platform
                 if (mobs.dx) ball.x += mobs.dx;
                 if (mobs.dy) ball.y += mobs.dy;
+                // Optional: playSound(mobSound);
               }
             }
           }
@@ -703,196 +680,169 @@ let gameOver = false;
         // Coins
         for (const coin of coins) {
           if (coin.collected) continue;
-
-          const dx = ball.x - coin.x;
-          const dy = ball.y - coin.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < ball.radius + coin.radius) {
+          const dx = ball.x - coin.x, dy = ball.y - coin.y;
+          if (Math.sqrt(dx*dx + dy*dy) < ball.radius + coin.radius) {
             coin.collected = true;
             coinsCollected++;
             totalCoins++;
-            localStorage.setItem("totalCoins", totalCoins);
+            localStorage.setItem('totalCoins', totalCoins);
             updateCoinHUD();
+            playSound(coinSound);
           }
         }
 
-        // Jump blocks (bounce pads)
+        // Jump blocks
         for (const jb of jumpBlocks) {
-          const closestX = Math.max(jb.x, Math.min(ball.x, jb.x + jb.width));
-          const closestY = Math.max(jb.y, Math.min(ball.y, jb.y + jb.height));
-          const dx = ball.x - closestX;
-          const dy = ball.y - closestY;
-
-          if (dx * dx + dy * dy < ball.radius * ball.radius) {
-            const overlapX = ball.radius - Math.abs(dx);
-            const overlapY = ball.radius - Math.abs(dy);
-
-            if (overlapX < overlapY) {
-              ball.x += dx > 0 ? overlapX : -overlapX;
-              ball.dx = 0;
-            } else {
-              ball.y += dy > 0 ? overlapY : -overlapY;
-
-              if (dy < 0) {
-                // Landed on top - bounce!
-                ball.dy = jumpPower * (jb.boost || 1.8);
-              } else {
-                ball.dy = 0;
-              }
+          const cx = Math.max(jb.x, Math.min(ball.x, jb.x + jb.width));
+          const cy = Math.max(jb.y, Math.min(ball.y, jb.y + jb.height));
+          const dx = ball.x - cx, dy = ball.y - cy;
+          if (dx*dx + dy*dy < ball.radius * ball.radius) {
+            const ox = ball.radius - Math.abs(dx);
+            const oy = ball.radius - Math.abs(dy);
+            if (ox < oy) { ball.x += dx > 0 ? ox : -ox; ball.dx = 0; }
+            else {
+              ball.y += dy > 0 ? oy : -oy;
+              if (dy < 0) { ball.dy = jumpPower * (jb.boost || 1.8); playSound(bounceSound); }
+              else         ball.dy = 0;
             }
           }
         }
 
-        // Air-blow blocks (wind / fans)
+        // Air-blow blocks
         for (const ab of airBlocks) {
-          if (
-            ball.x + ball.radius > ab.x && ball.x - ball.radius < ab.x + ab.width &&
-            ball.y + ball.radius > ab.y && ball.y - ball.radius < ab.y + ab.height
-          ) {
+          if (ball.x+ball.radius > ab.x && ball.x-ball.radius < ab.x+ab.width &&
+              ball.y+ball.radius > ab.y && ball.y-ball.radius < ab.y+ab.height) {
             ball.dx += ab.forceX || 0;
             ball.dy += ab.forceY || 0;
-
-            // Cap speed so it doesn't go out of control
             ball.dx = Math.max(-8, Math.min(8, ball.dx));
             ball.dy = Math.max(-8, Math.min(8, ball.dy));
+            // Optional continuous wind sound: playSound(airSound);
           }
         }
-
-        // Bomb blocks (hazard)
-        for (const bb of bombBlocks) {
-          if (
-            ball.x + ball.radius > bb.x && ball.x - ball.radius < bb.x + bb.width &&
-            ball.y + ball.radius > bb.y && ball.y - ball.radius < bb.y + bb.height
-          ) {
-            loseSound.currentTime = 0;
-            loseSound.play();
-            gameOver = true;
-            ball.dx=0;
-            ball.dy=0;
-            playAgainOverlay.style.display = 'block';
-            cancelAnimationFrame(anim);
-          }
-        }
-
-        for (const obs of obstacles) {
-          if (obs.dx) {
-            obs.x += obs.dx;
-            if (obs.x > obs.sx + 100) obs.dx *= -1;
-            if (obs.x < obs.sx - 100) obs.dx *= -1;
-          }
-          if (obs.dy) {
-            obs.y += obs.dy;
-            if (obs.y > obs.sy + 100) obs.dy *= -1;
-            if (obs.y < obs.sy - 100) obs.dy *= -1;
-          }
-
-          if (
-            ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width &&
-            ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.height
-          ) {
-            loseSound.currentTime = 0;
-            loseSound.play();
-            gameOver= true;
-            ball.dx=0;
-            ball.dy=0;
-          
-
-            playAgainOverlay.style.display = 'block';
-            cancelAnimationFrame(anim);
-          }
-        }
-
-        for (const gbs of gate) {
-          if (
-            ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
-            ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.width && !gbs.mov
-          ) {
-            //gbs.x = 830; gbs.y = 610; gbs.mov = true;
-            winSound.currentTime = 0;
-            winSound.play();
-            gameOver = true;
-
-            youWinOverlay.style.display = 'block';
-            cancelAnimationFrame(anim);
-          }
-          //if (
-            //ball.x + ball.radius > gbs.x && ball.x - ball.radius < gbs.x + gbs.width &&
-            //ball.y + ball.radius > gbs.y && ball.y - ball.radius < gbs.y + gbs.height
-          //) {
-            //youWinOverlay.style.display = 'block';
-            //cancelAnimationFrame(anim);
-          }
-          
-      }
-const bg = new Image();
-bg.src = "sky.jpg";
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(
-        bg,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-);
-
-        ctx.fillStyle = 'green';
-        for (const block of blocks) ctx.fillRect(block.x - cameraX, block.y - cameraY, block.width, block.height);
-
-        ctx.fillStyle = 'gray';
-        for (const mobs of mobstacles) ctx.fillRect(mobs.x - cameraX, mobs.y - cameraY, mobs.width, mobs.height);
-
-        // Jump blocks (bounce pads)
-        for (const jb of jumpBlocks) {
-          ctx.fillStyle = 'orange';
-          ctx.fillRect(jb.x - cameraX, jb.y - cameraY, jb.width, jb.height);
-          ctx.fillStyle = 'yellow';
-          ctx.fillRect(jb.x - cameraX, jb.y - cameraY, jb.width, 4);
-        }
-
-        // Air-blow blocks (wind / fans)
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.4)';
-        for (const ab of airBlocks) ctx.fillRect(ab.x - cameraX, ab.y - cameraY, ab.width, ab.height);
 
         // Bomb blocks
         for (const bb of bombBlocks) {
-          ctx.fillStyle = 'darkred';
-          ctx.fillRect(bb.x - cameraX, bb.y - cameraY, bb.width, bb.height);
-          ctx.fillStyle = 'black';
-          ctx.beginPath();
-          ctx.arc(bb.x - cameraX + bb.width / 2, bb.y - cameraY + bb.height / 2, Math.min(bb.width, bb.height) / 3, 0, Math.PI * 2);
-          ctx.fill();
+          if (ball.x+ball.radius > bb.x && ball.x-ball.radius < bb.x+bb.width &&
+              ball.y+ball.radius > bb.y && ball.y-ball.radius < bb.y+bb.height) {
+            playSound(bombSound);
+            triggerLose();
+          }
+        }
+
+        // Regular obstacles
+        for (const obs of obstacles) {
+          if (obs.dx) { obs.x += obs.dx; if (obs.x > obs.sx+100 || obs.x < obs.sx-100) obs.dx *= -1; }
+          if (obs.dy) { obs.y += obs.dy; if (obs.y > obs.sy+100 || obs.y < obs.sy-100) obs.dy *= -1; }
+          if (ball.x+ball.radius > obs.x && ball.x-ball.radius < obs.x+obs.width &&
+              ball.y+ball.radius > obs.y && ball.y-ball.radius < obs.y+obs.height) {
+            triggerLose();
+          }
+        }
+
+        // Gate 
+        for (const gbs of gate) {
+          if (ball.x+ball.radius > gbs.x && ball.x-ball.radius < gbs.x+gbs.width &&
+              ball.y+ball.radius > gbs.y && ball.y-ball.radius < gbs.y+gbs.width && !gbs.mov) {
+            triggerWin();
+          }
+        }
+      }
+
+      // =======================
+      // DRAW
+      // =======================
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Background image (falls back to canvas background colour if not loaded)
+        if (imgBg.complete && imgBg.naturalWidth > 0) {
+          ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
+        }
+
+        // Solid blocks
+        for (const block of blocks)
+          drawImg(imgBlock, 'green', block.x - cameraX, block.y - cameraY, block.width, block.height);
+
+        // Moving platforms
+        for (const mobs of mobstacles)
+          drawImg(imgMob, 'gray', mobs.x - cameraX, mobs.y - cameraY, mobs.width, mobs.height);
+
+        // Jump blocks (bounce pads)
+        for (const jb of jumpBlocks) {
+          if (imgJump.complete && imgJump.naturalWidth > 0) {
+            ctx.drawImage(imgJump, jb.x - cameraX, jb.y - cameraY, jb.width, jb.height);
+          } else {
+            ctx.fillStyle = 'orange';
+            ctx.fillRect(jb.x - cameraX, jb.y - cameraY, jb.width, jb.height);
+            ctx.fillStyle = 'yellow';
+            ctx.fillRect(jb.x - cameraX, jb.y - cameraY, jb.width, 4);
+          }
+        }
+
+        // Air-blow blocks
+        for (const ab of airBlocks) {
+          if (imgAir.complete && imgAir.naturalWidth > 0) {
+            ctx.drawImage(imgAir, ab.x - cameraX, ab.y - cameraY, ab.width, ab.height);
+          } else {
+            ctx.fillStyle = 'rgba(0,255,255,0.4)';
+            ctx.fillRect(ab.x - cameraX, ab.y - cameraY, ab.width, ab.height);
+          }
+        }
+
+        // Bomb blocks
+        for (const bb of bombBlocks) {
+          if (imgBomb.complete && imgBomb.naturalWidth > 0) {
+            ctx.drawImage(imgBomb, bb.x - cameraX, bb.y - cameraY, bb.width, bb.height);
+          } else {
+            ctx.fillStyle = 'darkred';
+            ctx.fillRect(bb.x - cameraX, bb.y - cameraY, bb.width, bb.height);
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(bb.x - cameraX + bb.width/2, bb.y - cameraY + bb.height/2,
+                    Math.min(bb.width, bb.height)/3, 0, Math.PI*2);
+            ctx.fill();
+          }
         }
 
         // Coins
-        ctx.fillStyle = 'gold';
         for (const coin of coins) {
           if (coin.collected) continue;
-          ctx.beginPath();
-          ctx.arc(coin.x - cameraX, coin.y - cameraY, coin.radius, 0, Math.PI * 2);
-          ctx.fill();
+          if (imgCoin.complete && imgCoin.naturalWidth > 0) {
+            ctx.drawImage(imgCoin,
+              coin.x - cameraX - coin.radius,
+              coin.y - cameraY - coin.radius,
+              coin.radius * 2, coin.radius * 2);
+          } else {
+            ctx.fillStyle = 'gold';
+            ctx.beginPath();
+            ctx.arc(coin.x - cameraX, coin.y - cameraY, coin.radius, 0, Math.PI*2);
+            ctx.fill();
+          }
         }
 
-        ctx.fillStyle = 'purple';
-        for (const obs of obstacles) ctx.fillRect(obs.x - cameraX, obs.y - cameraY, obs.width, obs.height);
+        // Obstacles
+        for (const obs of obstacles)
+          drawImg(imgObstacle, 'purple', obs.x - cameraX, obs.y - cameraY, obs.width, obs.height);
 
-        ctx.fillStyle = 'gold';
-        for (const gbs of gate) ctx.fillRect(gbs.x - cameraX, gbs.y - cameraY, gbs.width, gbs.height);
+        // Gate / goal
+        for (const gbs of gate)
+          drawImg(imgGate, 'gold', gbs.x - cameraX, gbs.y - cameraY, gbs.width, gbs.height);
 
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(ball.x - cameraX, ball.y - cameraY, ball.radius, 0, Math.PI * 2);
-        ctx.fill();
+        // Player ball
+        if (imgBall.complete && imgBall.naturalWidth > 0) {
+          ctx.drawImage(imgBall,
+            ball.x - cameraX - ball.radius,
+            ball.y - cameraY - ball.radius,
+            ball.radius * 2, ball.radius * 2);
+        } else {
+          ctx.fillStyle = 'red';
+          ctx.beginPath();
+          ctx.arc(ball.x - cameraX, ball.y - cameraY, ball.radius, 0, Math.PI*2);
+          ctx.fill();
+        }
       }
 
-      function loop() {
-        update();
-        draw();
-        anim = requestAnimationFrame(loop);
-      }
+      function loop() { update(); draw(); anim = requestAnimationFrame(loop); }
       loop();
 
       function checkOrientation() {
@@ -905,188 +855,160 @@ bg.src = "sky.jpg";
     });
 
     // =======================
-    // LEVEL DESIGN REFERENCE (for building levels 3-10)
+    // LEVEL DESIGN REFERENCE
     // =======================
-    // blocks:      { x, y, width, height }
-    //              -> solid ground / platforms
-    //
-    // obstacles:   { x, y, width, height, dx, sx }  or  { ..., dy, sy }
-    //              -> moving hazards, touching them ends the run
-    //
-    // mobstacles:  { x, y, width, height, dx, sx }  or  { ..., dy, sy }
-    //              -> moving platforms you can ride
-    //
-    // gate:        { x, y, width, height, mov: false }
-    //              -> level goal / finish
-    //
-    // coins:       { x, y, radius, collected: false }
-    //              -> collectibles, adds to the coin total
-    //
-    // jumpBlocks:  { x, y, width, height, boost }
-    //              -> bounce pad, boosts the jump (boost ~1.5 - 2)
-    //
-    // airBlocks:   { x, y, width, height, forceX, forceY }
-    //              -> wind / fan, pushes the ball while inside it
-    //              -> negative forceY = blows up, positive forceX = blows right
-    //
-    // bombBlocks:  { x, y, width, height }
-    //              -> hazard, touching it ends the run
-    // =======================
+    // blocks:     { x, y, width, height }               solid platforms (image: block.png)
+    // obstacles:  { x, y, width, height, dx/dy, sx/sy } moving hazards  (image: obstacle.png)
+    // mobstacles: { x, y, width, height, dx/dy, sx/sy } rideable platforms (image: mob.png)
+    // gate:       { x, y, width, height, mov: false }    finish goal     (image: gate.png)
+    // coins:      { x, y, radius, collected: false }     collectible     (image: coin.png)
+    // jumpBlocks: { x, y, width, height, boost }         bounce pad      (image: jumppad.png)
+    // airBlocks:  { x, y, width, height, forceX, forceY } wind zone      (image: fan.png)
+    // bombBlocks: { x, y, width, height }                hazard          (image: bomb.png)
 
     // =======================
     // LEVEL LOADER
     // =======================
     function loadLevel(level) {
-
-      // Reset coin progress for the run + clear extra elements by default
       coinsCollected = 0;
-      coins = [];
-      jumpBlocks = [];
-      airBlocks = [];
-      bombBlocks = [];
+      coins = []; jumpBlocks = []; airBlocks = []; bombBlocks = [];
 
-      if (level == 2) {
-        ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
-        gravity = 0.5;
-        jumpPower = -15;
+      if (level == 1) {
+        ball = { x: 1650, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
+        gravity = 0.25; jumpPower = -25;
 
         blocks = [
-          { x: 30, y: 630, width: 3500, height: 1000 },
-          { x: 30, y: 630, width: 450, height: 2000 },
-          { x: 1200, y: 30, width: 1000, height: 1500 },
-          { x: 1800, y: 1600, width: 1001, height: 200 },
-          { x: 800, y: 500, width: 100, height: 20 },
-          { x: 700, y: 400, width: 100, height: 20 },
-          { x: 600, y: 300, width: 100, height: 20 },
-          { x: 500, y: 200, width: 100, height: 20 },
-          { x: 400, y: 100, width: 100, height: 20 },
-          { x: 100, y: 100, width: 100, height: 20 },
-          { x: 250, y: -100, width: 100, height: 20 },
-          { x: 400, y: -200, width: 100, height: 20 },
-          { x: 300, y: -300, width: 100, height: 20 },
-          { x: 200, y: -400, width: 100, height: 20 },
-          { x: 100, y: -500, width: 100, height: 20 },
-          { x: 25, y: -550, width: 50, height: 20 },
-          { x: -100, y: -600, width: 100, height: 20 },
-          { x: -200, y: -700, width: 100, height: 20 },
+          { x: 30,    y: 630,  width: 5500, height: 1000 },
+          { x: -1300, y: 830,  width: 5500, height: 1000 },
+          { x: 1200,  y: 30,   width: 1000, height: 500  },
+          { x: 1700,  y: 500,  width: 500,  height: 500  },
+          { x: 1800,  y: 1600, width: 1001, height: 200  },
+          { x: -50,   y: 680,  width: 100,  height: 70   },
+          { x: -250,  y: 680,  width: 100,  height: 20   },
         ];
 
         mobstacles = [
-          { x: 650, y: 480, width: 20, height: 20, sx: 750, sy: 460, dy: -30 },
-          { x: 400, y: 20, width: 100, height: 20, sx: 300, sy: 200, dx: 2 }
+          { x: 1400, y: 530, width: 10, height: 100, sx: 1400, sy: 530, dy: 2 },
+        ];
+        coins = [
+          { x: 850, y: 620, radius: 10, collected: false },
+          { x: 950, y: 620, radius: 10, collected: false },
+          { x: 650, y: 620, radius: 10, collected: false },
+          { x: 750, y: 620, radius: 10, collected: false },
+          { x: 550, y: 620, radius: 10, collected: false },
+          { x: 450, y: 620, radius: 10, collected: false },
+          { x: 350, y: 620, radius: 10, collected: false },
+          { x: 250, y: 620, radius: 10, collected: false },
+          { x: 150, y: 620, radius: 10, collected: false },
+          { x: 100, y: 620, radius: 10, collected: false },
+        ];
+        obstacles = [
+          { x: 850, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -2  },
+          { x: 950, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -1  },
+          { x: 650, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -7  },
+          { x: 750, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5  },
+          { x: 550, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -3  },
+          { x: 450, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -6  },
+          { x: 350, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -7  },
+          { x: 250, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -4  },
+          { x: 150, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5  },
+          { x: 100, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -10 },
+        ];
+
+        gate = [{ x: -1300, y: 800, width: 20, height: 20, mov: false }];
+      }
+
+      if (level == 2) {
+        ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
+        gravity = 0.5; jumpPower = -15;
+
+        blocks = [
+          { x: 30,   y: 630,  width: 3500, height: 1000 },
+          { x: 30,   y: 630,  width: 450,  height: 2000 },
+          { x: 1200, y: 30,   width: 1000, height: 1500 },
+          { x: 1800, y: 1600, width: 1001, height: 200  },
+          { x: 800,  y: 500,  width: 100,  height: 20   },
+          { x: 700,  y: 400,  width: 100,  height: 20   },
+          { x: 600,  y: 300,  width: 100,  height: 20   },
+          { x: 500,  y: 200,  width: 100,  height: 20   },
+          { x: 400,  y: 100,  width: 100,  height: 20   },
+          { x: 100,  y: 100,  width: 100,  height: 20   },
+          { x: 250,  y: -100, width: 100,  height: 20   },
+          { x: 400,  y: -200, width: 100,  height: 20   },
+          { x: 300,  y: -300, width: 100,  height: 20   },
+          { x: 200,  y: -400, width: 100,  height: 20   },
+          { x: 100,  y: -500, width: 100,  height: 20   },
+          { x: 25,   y: -550, width: 50,   height: 20   },
+          { x: -100, y: -600, width: 100,  height: 20   },
+          { x: -200, y: -700, width: 100,  height: 20   },
+        ];
+
+        mobstacles = [
+          { x: 650, y: 480, width: 20,  height: 20, sx: 750, sy: 460, dy: -30 },
+          { x: 400, y: 20,  width: 100, height: 20, sx: 300, sy: 200, dx: 2   },
         ];
 
         obstacles = [
-          { x: 600, y: 130, width: 10, height: 40, dx: 1, sx: 620 },
-          { x: -800, y: 630, width: 1000, height: 4000 },
-          { x: 300, y: -320, width: 10, height: 20, dx: 1, sx: 320 }
+          { x: 600, y: 130, width: 10, height: 40, dx: 1,  sx: 620 },
+          { x: -800,y: 630, width: 1000,height: 4000 },
+          { x: 300, y:-320, width: 10, height: 20, dx: 1,  sx: 320 },
         ];
 
-        gate = [
-          { x: -200, y: -800, width: 30, height: 40, mov: false },
-        ];
+        gate = [{ x: -200, y: -800, width: 30, height: 40, mov: false }];
 
-        // --- Example coins, jump block, air block, and bomb block ---
         coins = [
-          { x: 820, y: 470, radius: 8, collected: false },
-          { x: 720, y: 370, radius: 8, collected: false },
-          { x: 420, y: 60, radius: 8, collected: false },
-          { x: -150, y: -740, radius: 8, collected: false }
+          { x: 820,  y: 470,  radius: 8, collected: false },
+          { x: 720,  y: 370,  radius: 8, collected: false },
+          { x: 420,  y: 60,   radius: 8, collected: false },
+          { x: -150, y: -740, radius: 8, collected: false },
         ];
 
-        jumpBlocks = [
-          { x: 250, y: -80, width: 100, height: 20, boost: 1.8 }
-        ];
-
-        airBlocks = [
-          { x: 100, y: -480, width: 100, height: 100, forceX: 0, forceY: -0.6 }
-        ];
-
-        bombBlocks = [
-          { x: -150, y: -660, width: 40, height: 40 }
-        ];
+        jumpBlocks = [{ x: 250, y: -80, width: 100, height: 20, boost: 1.8 }];
+        airBlocks  = [{ x: 100, y: -480, width: 100, height: 100, forceX: 0, forceY: -0.6 }];
+        bombBlocks = [{ x: -150, y: -660, width: 40, height: 40 }];
       }
 
       if (level == 3) {
         ball = { x: 830, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
-        gravity = 0.5;
-        jumpPower = -10;
+        gravity = 0.5; jumpPower = -10;
 
         blocks = [
-          { x: 0, y: 650, width: 600, height: 520 },
+          { x: 0,   y: 650, width: 600, height: 520 },
           { x: 650, y: 650, width: 300, height: 520 },
-          { x: 0, y: 0, width: 30, height: 1500 },
-          { x: 870, y: 0, width: 30, height: 1500 },
-          { x: 0, y: 0, width: 900, height: 30 },
-          { x: 80, y: 560, width: 800, height: 10 },
-          { x: 30, y: 460, width: 800, height: 10 },
-          { x: 80, y: 360, width: 800, height: 10 },
-          { x: 30, y: 260, width: 800, height: 10 },
-          { x: 80, y: 160, width: 650, height: 10 },
-          { x: 770, y: 160, width: 120, height: 10 },
-          { x: 80, y: 560, width: 10, height: 50 },
-          { x: 830, y: 460, width: 10, height: 50 },
-          { x: 80, y: 360, width: 10, height: 50 },
-          { x: 830, y: 260, width: 10, height: 50 },
-          { x: 80, y: 160, width: 10, height: 50 }
+          { x: 0,   y: 0,   width: 30,  height: 1500 },
+          { x: 870, y: 0,   width: 30,  height: 1500 },
+          { x: 0,   y: 0,   width: 900, height: 30   },
+          { x: 80,  y: 560, width: 800, height: 10   },
+          { x: 30,  y: 460, width: 800, height: 10   },
+          { x: 80,  y: 360, width: 800, height: 10   },
+          { x: 30,  y: 260, width: 800, height: 10   },
+          { x: 80,  y: 160, width: 650, height: 10   },
+          { x: 770, y: 160, width: 120, height: 10   },
+          { x: 80,  y: 560, width: 10,  height: 50   },
+          { x: 830, y: 460, width: 10,  height: 50   },
+          { x: 80,  y: 360, width: 10,  height: 50   },
+          { x: 830, y: 260, width: 10,  height: 50   },
+          { x: 80,  y: 160, width: 10,  height: 50   },
         ];
 
         mobstacles = [
-          { x: 650, y: 480, width: 20, height: 20, sx: 750, sy: 460, dy: -30 },
-          { x: 400, y: 20, width: 100, height: 20, sx: 300, sy: 200, dx: 2 }
+          { x: 650, y: 480, width: 20,  height: 20, sx: 750, sy: 460, dy: -30 },
+          { x: 400, y: 20,  width: 100, height: 20, sx: 300, sy: 200, dx: 2   },
         ];
 
         obstacles = [
           { x: 600, y: 680, width: 50, height: 150, dy: 1, sy: 350 },
-          { x: 750, y: 380, width: 10, height: 40, dy: 1, sy: 350 },
-          { x: 550, y: 550, width: 10, height: 40, dy: 1, sy: 650 },
-          { x: 160, y: 400, width: 10, height: 40, dy: 1, sy: 400 },
-          { x: 500, y: 350, width: 10, height: 40, dy: 1, sy: 320 },
-          { x: 300, y: 230, width: 10, height: 40, dy: 1, sy: 220 },
-          { x: 600, y: 130, width: 10, height: 40, dx: 1, sx: 620 }
+          { x: 750, y: 380, width: 10, height: 40,  dy: 1, sy: 350 },
+          { x: 550, y: 550, width: 10, height: 40,  dy: 1, sy: 650 },
+          { x: 160, y: 400, width: 10, height: 40,  dy: 1, sy: 400 },
+          { x: 500, y: 350, width: 10, height: 40,  dy: 1, sy: 320 },
+          { x: 300, y: 230, width: 10, height: 40,  dy: 1, sy: 220 },
+          { x: 600, y: 130, width: 10, height: 40,  dx: 1, sx: 620 },
         ];
 
-        gate = [
-          { x: 830, y: 120, width: 30, height: 40, mov: false }
-        ];
+        gate = [{ x: 830, y: 120, width: 30, height: 40, mov: false }];
       }
-      if(level==1){
-         //1650
-    ball = { x: 1650, y: 630, radius: 10, dx: 0, dy: 0, onGround: false };
-        gravity = 0.5;
-        jumpPower = -12.5;
 
-        blocks = [
-          { x: 30, y: 630, width: 5500, height: 1000 },
-          { x: -1300, y: 830, width: 5500, height: 1000 },
-          { x: 1200, y: 30, width: 1000, height: 500 },
-           { x: 1700, y: 500, width: 500, height: 500 },
-          { x: 1800, y: 1600, width: 1001, height: 200 }, 
-          { x: -50, y: 680, width: 100, height: 70 },
-           { x: -250, y: 680, width: 100, height: 20 },
-        ];
-           mobstacles = [
-           { x: 1400, y: 530, width: 10, height: 100,sx: 1400, sy: 530, dy: 2 },
-        
-        ];
-
-        obstacles = [
-          { x: 850, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -2 },
-          { x: 950, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -1 },
-         { x: 650, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -7 },
-          { x: 750, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5 },
-          { x: 550, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -3 },
-          { x: 450, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -6 },
-          { x: 350, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -7 },
-          { x: 250, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -4 },
-        { x: 150, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5 },
-          { x: 100, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -10 },
-        ];
-
-        gate = [
-          { x: -1300, y: 800, width: 20, height: 20 ,mov: false },
-        ];
-      }
       updateCoinHUD();
     }
   </script>
