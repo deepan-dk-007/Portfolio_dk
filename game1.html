@@ -283,7 +283,7 @@
   <audio id="bounceSound"   src="bounce.mp3"   preload="auto"></audio>
   <audio id="bombSound"     src="bomb.mp3"     preload="auto"></audio>
   <audio id="airSound"      src="air.mp3"      preload="auto"></audio>
-  <audio id="mobSound"      src="mob.mp3"      preload="auto"></audio>
+  <audio id="mobSound"      src="air.mp3"      preload="auto"></audio>
 
   <!-- COIN HUD -->
   <div id="coinHUD">🪙 0</div>
@@ -424,11 +424,11 @@
     // =======================
     const imgBg        = new Image(); imgBg.src        = 'sky.jpg';       // canvas background
     const imgBall      = new Image(); imgBall.src      = 'ball.png';      // player
-    const imgBlock     = new Image(); imgBlock.src     = 'block.png';     // solid platforms
+    const imgBlock     = new Image(); imgBlock.src     = 'grass.png';     // solid platforms
     const imgMob       = new Image(); imgMob.src       = 'mob.png';       // moving platforms
     const imgObstacle  = new Image(); imgObstacle.src  = 'obstacle.png';  // hazard obstacles
     const imgGate      = new Image(); imgGate.src      = 'gate.png';      // finish / goal
-    const imgCoin      = new Image(); imgCoin.src      = 'coin.png';      // collectible coin
+    const imgCoin      = new Image(); imgCoin.src      = 'Coin.png';      // collectible coin
     const imgJump      = new Image(); imgJump.src      = 'jumppad.png';   // bounce pad
     const imgAir       = new Image(); imgAir.src       = 'fan.png';       // air / wind block
     const imgBomb      = new Image(); imgBomb.src      = 'bomb.png';      // bomb block
@@ -650,8 +650,11 @@
             const ox = ball.radius - Math.abs(dx);
             const oy = ball.radius - Math.abs(dy);
             if (ox < oy) { ball.x += dx > 0 ? ox : -ox; ball.dx = 0; }
-            else          { ball.y += dy > 0 ? oy : -oy; ball.dy = 0; if (dy < 0) ball.onGround = true; }
+            else          { ball.y += dy > 0 ? oy : -oy; ball.dy = 0; if (dy < 0) ball.onGround = true;
+               playSound(airSound);
+             }
           }
+          
         }
 
         // Moving platforms
@@ -664,17 +667,19 @@
           if (dx*dx + dy*dy < ball.radius * ball.radius) {
             const ox = ball.radius - Math.abs(dx);
             const oy = ball.radius - Math.abs(dy);
+             playSound(mobSound);
             if (ox < oy) { ball.x += dx > 0 ? ox : -ox; ball.dx = 0; }
             else {
               ball.y += dy > 0 ? oy : -oy; ball.dy = 0;
+               playSound(mobSound);
               if (dy < 0) {
                 ball.onGround = true;
                 if (mobs.dx) ball.x += mobs.dx;
                 if (mobs.dy) ball.y += mobs.dy;
-                // Optional: playSound(mobSound);
               }
             }
           }
+           playSound(mobSound);
         }
 
         // Coins
@@ -716,7 +721,7 @@
             ball.dy += ab.forceY || 0;
             ball.dx = Math.max(-8, Math.min(8, ball.dx));
             ball.dy = Math.max(-8, Math.min(8, ball.dy));
-            // Optional continuous wind sound: playSound(airSound);
+            playSound(airSound);
           }
         }
 
@@ -737,6 +742,7 @@
               ball.y+ball.radius > obs.y && ball.y-ball.radius < obs.y+obs.height) {
             triggerLose();
           }
+           playSound(mobSound);
         }
 
         // Gate 
@@ -914,7 +920,9 @@
           { x: 150, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -5  },
           { x: 100, y: 380, width: 20, height: 70, sx: 750, sy: 460, dy: -10 },
         ];
-
+        bomb=[{ x: -100, y: 680, width: 20, height: 20 }
+          ,{ x: -200, y: 680, width: 20, height: 20 }
+        ];
         gate = [{ x: -1300, y: 800, width: 20, height: 20, mov: false }];
       }
 
