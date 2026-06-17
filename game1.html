@@ -287,14 +287,14 @@
   <div class="overlay-box">
     💀 Game Over
     <div class="sub" id="loseCoinsMsg"></div>
-    <div class="tap">Tap to Play Again</div>
+    <div class="tap", style="font-size:18px; margin-top:14px;">Tap to Play Again</div>
   </div>
 </div>
 <div id="youWinOverlay" class="centerOverlay">
   <div class="overlay-box">
     🏆 You Win!
     <div class="sub" id="winCoinsMsg"></div>
-    <div class="tap">Tap to Continue</div>
+    <div class="tap", style="font-size:18px; margin-top:14px;">Tap to Continue</div>
   </div>
 </div>
 
@@ -335,11 +335,12 @@ const imgBg       = new Image(); imgBg.src       = 'sky.jpg';
 const imgBall     = new Image(); imgBall.src     = 'ball.png';
 const imgBlock    = new Image(); imgBlock.src    = 'grass.png';
 const imgMob      = new Image(); imgMob.src      = 'mob.png';
-const imgObstacle = new Image(); imgObstacle.src = 'obstacle.png';
+const imgObstacle = new Image(); imgObstacle.src = 'block.png';
+const imgObstacles = new Image(); imgObstacles.src = 'grass.png';
 const imgGate     = new Image(); imgGate.src     = 'gate.png';
 const imgCoin     = new Image(); imgCoin.src     = 'Coin.png';
-const imgDiamond  = new Image(); imgDiamond.src  = 'diamond.png';  // 💎 your diamond image
-const imgKey      = new Image(); imgKey.src      = 'key.png';      // 🗝️ your key image
+const imgDiamond  = new Image(); imgDiamond.src  = 'diamond.png';  
+const imgKey      = new Image(); imgKey.src      = 'key.png';      
 const imgJump     = new Image(); imgJump.src     = 'jumppad.png';
 const imgAir      = new Image(); imgAir.src      = 'fan.png';
 const imgBomb     = new Image(); imgBomb.src     = 'bomb.png';
@@ -367,7 +368,7 @@ let gameRunning = false;
 // ===========================
 // LEVEL DATA ARRAYS
 // ===========================
-let blocks=[], obstacles=[], mobstacles=[], gate=[];
+let blocks=[], obstacles=[],obstacless=[], mobstacles=[], gate=[];
 let coins=[], diamonds=[], keys=[], jumpBlocks=[], airBlocks=[], bombBlocks=[];
 
 // ===========================
@@ -482,7 +483,7 @@ function triggerLose() {
   cancelAnimationFrame(anim);
   playSound(loseSound);
   document.getElementById('loseCoinsMsg').innerHTML =
-    '🪙 ' + coinsCollected + ' coins &nbsp; 💎 ' + diamondsCollected + ' diamonds this run';
+    '🪙 ' + coinsCollected + ' coins &nbsp; 💎 ' + diamondsCollected + ' diamonds';
   document.getElementById('playAgainOverlay').style.display = 'block';
 }
 
@@ -685,6 +686,16 @@ document.getElementById('startBtn').addEventListener('click', () => {
         triggerLose();
       }
     }
+     // ──monster ──
+    for (const obss of obstacless) {
+      if (obss.dx) { obss.x += obss.dx; if (obss.x > obss.sx+100 || obss.x < obss.sx-100) obss.dx *= -1; }
+      if (obss.dy) { obss.y += obss.dy; if (obss.y > obss.sy+100 || obss.y < obss.sy-100) obss.dy *= -1; }
+      if (ball.x+ball.radius > obss.x && ball.x-ball.radius < obss.x+obss.width &&
+          ball.y+ball.radius > obss.y && ball.y-ball.radius < obss.y+obss.height) {
+        triggerLose();
+      }
+    }
+    
 
     // ── GATE ──
     for (const gbs of gate) {
@@ -798,7 +809,11 @@ document.getElementById('startBtn').addEventListener('click', () => {
 
     // Obstacles
     for (const obs of obstacles)
-      drawImg(imgObstacle, 'purple', obs.x-cameraX, obs.y-cameraY, obs.width, obs.height);
+      drawImg(imgObstacles, 'purple', obs.x-cameraX, obs.y-cameraY, obs.width, obs.height);
+
+       // Obstacless
+    for (const obss of obstacless)
+      drawImg(imgObstacle, 'red', obss.x-cameraX, obss.y-cameraY-25, width=100, height=100);
 
     // Gate
     for (const gbs of gate)
@@ -852,6 +867,7 @@ function loadLevel(level) {
   diamondsCollected = 0;
   coins=[]; diamonds=[]; keys=[];
   jumpBlocks=[]; airBlocks=[]; bombBlocks=[];
+  obstacless=[];
 
   // ── LEVEL 1 ──
   if (level == 1) {
@@ -893,10 +909,10 @@ function loadLevel(level) {
       { x:250,  y:380, width:20, height:70, sx:750, sy:460, dy:-4  },
       { x:150,  y:380, width:20, height:70, sx:750, sy:460, dy:-5  },
       { x:100,  y:380, width:20, height:70, sx:750, sy:460, dy:-10 },
-      { x:-200, y:800, width:35, height:35, sx:-250, dx:-2 },
-      { x:-600, y:800, width:35, height:35, sx:-650, dx:-2 },
       { x:5500, y:1000, width:3500, height:10},
     ];
+    obstacless=[{ x:-200, y:800, width:35, height:35, sx:-250, dx:-2 },
+      { x:-600, y:800, width:35, height:35, sx:-650, dx:-2 }];
     gate       = [{ x:-1300, y:800, width:30, height:50, mov:false }];
     coins      = [
       { x:850,  y:620, radius:10, collected:false },
