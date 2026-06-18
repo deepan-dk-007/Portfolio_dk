@@ -872,7 +872,7 @@ function loadLevel(level) {
   // ── LEVEL 1 ──
   if (level == 1) {
     ball = { x:1650, y:630, radius:10, dx:0, dy:0, onGround:false };
-    gravity=0.5; jumpPower=-12;
+    gravity=0.45; jumpPower=-13.5;
     blocks = [
       { x:30,    y:630,  width:5500, height:1000 },
       { x:-1300, y:830,  width:5500, height:1000 },
@@ -945,10 +945,10 @@ function loadLevel(level) {
     airBlocks  = [{ x:-1390, y:850, width:90, height:1200, forceX:90000},
     { x:4500, y:-1000, width:90, height:2500, forceX:90000},
       { x:2500, y:-1000, width:90, height:2500, forceX:90000, forceY:-100 },
-       { x:5900, y:620, width:90, height:100, forceX:-10000, forceY:-10000 },
-        { x:5800, y:620, width:90, height:100, forceX:-10000, forceY:-10000 },
-         { x:5700, y:620, width:90, height:100, forceX:-10000, forceY:-10000 },
-          { x:5600, y:620, width:90, height:100, forceX:-10000, forceY:-10000 }
+       { x:5900, y:620, width:90, height:100, forceX:10000, forceY:-10000 },
+        { x:5800, y:620, width:90, height:100, forceX:10000, forceY:-10000 },
+         { x:5700, y:620, width:90, height:100, forceX:10000, forceY:-10000 },
+          { x:5600, y:620, width:90, height:100, forceX:10000, forceY:-10000 }
     ];
     bombBlocks = [
       { x:-1150, y:800, width:20, height:20 },
