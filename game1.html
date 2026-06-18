@@ -519,40 +519,72 @@ document.getElementById('startBtn').addEventListener('click', () => {
   document.getElementById('controls').style.display = 'flex';
 
   gameRunning = true;
-
   // ── CONTROLS ──
-  const leftBtn  = document.getElementById('leftBtn');
-  const rightBtn = document.getElementById('rightBtn');
-  const upBtn    = document.getElementById('upBtn');
-  let leftPressed = false, rightPressed = false;
+const leftBtn  = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+const upBtn    = document.getElementById('upBtn');
 
-  function updateMovement() {
-    if      (leftPressed && !rightPressed) ball.dx = -3;
-    else if (rightPressed && !leftPressed) ball.dx =  3;
-    else                                   ball.dx =  0;
-  }
-  function tryJump() {
-    if (ball.onGround) { ball.dy = jumpPower; playSound(jumpSound); }
-  }
-  function bindControl(btn, onDown, onUp) {
-    btn.addEventListener('pointerdown',   e => { e.preventDefault(); onDown(); });
-    btn.addEventListener('pointerup',     e => { e.preventDefault(); onUp(); });
-    btn.addEventListener('pointercancel', e => { e.preventDefault(); onUp(); });
-    btn.addEventListener('pointerleave',  e => { e.preventDefault(); onUp(); });
-  }
-  bindControl(leftBtn,  () => { leftPressed  = true;  updateMovement(); }, () => { leftPressed  = false; updateMovement(); });
-  bindControl(rightBtn, () => { rightPressed = true;  updateMovement(); }, () => { rightPressed = false; updateMovement(); });
-  bindControl(upBtn,    () => tryJump(), () => {});
+// Track each button with a touch-count so multi-finger presses work correctly
+let leftCount = 0, rightCount = 0;
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight') { rightPressed = true;  updateMovement(); }
-    if (e.key === 'ArrowLeft')  { leftPressed  = true;  updateMovement(); }
-    if (e.key === 'ArrowUp')    tryJump();
+function updateMovement() {
+  if      (leftCount > 0 && rightCount === 0) ball.dx = -3;
+  else if (rightCount > 0 && leftCount === 0) ball.dx =  3;
+  else                                         ball.dx =  0;
+}
+
+function tryJump() {
+  if (ball.onGround) {
+    ball.dy = jumpPower;
+    playSound(jumpSound);
+  }
+}
+
+// Use setPointerCapture so the button owns the pointer even if the finger drifts
+function bindBtn(btn, onDown, onUp) {
+  btn.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    btn.setPointerCapture(e.pointerId);
+    onDown();
   });
-  document.addEventListener('keyup', e => {
-    if (e.key === 'ArrowRight') { rightPressed = false; updateMovement(); }
-    if (e.key === 'ArrowLeft')  { leftPressed  = false; updateMovement(); }
+  btn.addEventListener('pointerup', e => {
+    e.preventDefault();
+    onUp();
   });
+  btn.addEventListener('pointercancel', e => {
+    e.preventDefault();
+    onUp();
+  });
+  // pointerleave still fires even with capture in some browsers — call onUp to be safe
+  btn.addEventListener('pointerleave', e => {
+    if (!btn.hasPointerCapture(e.pointerId)) onUp();
+  });
+}
+
+bindBtn(leftBtn,
+  () => { leftCount++;  updateMovement(); },
+  () => { leftCount = Math.max(0, leftCount - 1); updateMovement(); }
+);
+bindBtn(rightBtn,
+  () => { rightCount++;  updateMovement(); },
+  () => { rightCount = Math.max(0, rightCount - 1); updateMovement(); }
+);
+bindBtn(upBtn,
+  () => tryJump(),
+  () => {}
+);
+
+// Keyboard (laptop / desktop)
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') { rightCount = 1; updateMovement(); }
+  if (e.key === 'ArrowLeft')  { leftCount  = 1; updateMovement(); }
+  if (e.key === 'ArrowUp' || e.key === ' ') tryJump();
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowRight') { rightCount = 0; updateMovement(); }
+  if (e.key === 'ArrowLeft')  { leftCount  = 0; updateMovement(); }
+});
+  
 
   // ── UPDATE ──
   function update() {
