@@ -1434,11 +1434,23 @@
         { x:25,   y:-550, width:50,   height:20   },
         { x:-100, y:-600, width:100,  height:20   },
         { x:-200, y:-700, width:100,  height:20   },
+         { x:-100, y:-800, width:100,  height:20   },
+          { x:-50, y:-900, width:100,  height:20   },
+           { x:50, y:-1000, width:100,  height:20   },
+            { x:150, y:-1100, width:100,  height:20   },
+            { x:240, y:-4100,width:100, height:20},
+            { x:800, y:-4150,width:200, height:20},
+            { x:1060, y:-4250,width:100, height:20},
+             { x:1000, y:-820,width:250, height:20},
+             //key
+             { x:1200, y:-4350,width:400, height:20},
       ];
 
       obstacless = [
         { x:2900, y:1500, width:35, height:35, sy:1490, dy:2  },
         { x:2600, y:1550, width:35, height:35, sx:2650, dx:2  },
+         { x:1320, y:-4450, width:15, height:15, sy:-4350, dy:2  },
+          { x:1380, y:-4450, width:15, height:15, sy:-4350, dy:1 },
       ];
 
       mobstacles = [
@@ -1454,7 +1466,7 @@
         { x:300,  y:-320, width:10,   height:20,  dx:1, sx:320 },
       ];
 
-      gate = [{ x:-200, y:-800, width:30, height:40, mov:false }];
+      gate = [{ x:1550, y:-4390, width:30, height:40, mov:false }];
 
       coins = [
         { x:820,  y:470, radius:8, collected:false },
@@ -1471,6 +1483,14 @@
         { x:1500, y:20,  radius:8, collected:false },
         { x:1450, y:20,  radius:8, collected:false },
         { x:1300, y:20,  radius:8, collected:false },
+        { x:-65, y:-909,  radius:8, collected:false },
+        { x:65, y:-1009,  radius:8, collected:false },
+        { x:179, y:-1109,  radius:8, collected:false },
+        { x:260, y:-4109,  radius:8, collected:false },
+        { x:870, y:-4159,  radius:8, collected:false },
+        { x:1120, y:-4259,  radius:8, collected:false },
+        
+
       ];
 
       diamonds = [
@@ -1483,18 +1503,22 @@
       ];
 
       keys       = [{ id:'k1', x:550, y:750, radius:14, collected:false }];
-      jumpBlocks = [{ x:300, y:620, width:100, height:20, boost:2 }];
-      airBlocks  = [{ x:100, y:-480,width:100, height:100, forceX:0, forceY:-0.6 }];
+      jumpBlocks = [{ x:300, y:620, width:100, height:20, boost:2 },
+          { x:1000, y:-850,width:250, height:20,boost:5}
+      ];
+      airBlocks  = [{ x:190, y:-2100,width:10, height:1000, forceX:0, forceY:-10 },
+        { x:210, y:-3100,width:10, height:1000, forceX:0, forceY:-10 },
+        { x:230, y:-4100,width:10, height:1000, forceX:0, forceY:-10 },
+        { x:240, y:-4150,width:520, height:10, forceX:0, forceY:-2 }
+      ];
       bombBlocks = [{ x:1600, y:-10, width:40, height:40 }];
       bombBlockss= [{ x:1800, y:-10, width:40, height:40 }];
       airBlockss = [
         { x:1800, y:30,   width:33,  height:1590, forceX:0,    forceY:0 },
-        { x:300,  y:1570, width:1500,height:50,   forceX:-100, forceY:0 },
+        { x:300,  y:1570, width:1500,height:50,   forceX:-100, forceY:0 }
       ];
-
       setTimeout(() => showMsg('LEVEL 2 — Go high!', 4000), 800);
     }
-
     // ── LEVEL 3 ──
     if (level === 3) {
       ball = { x:830, y:630, radius:10, dx:0, dy:0, onGround:false };
