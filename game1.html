@@ -1353,12 +1353,7 @@
       }
     }
 
-    // Trigger land dust when ball just touched ground
-    if (ball.onGround && !wasOnGround) {
-      spawnDust(ball.x, ball.y + ball.radius);
-      setBallSquash(1.4, 0.6); // squash wide on land
-    }
-    wasOnGround = ball.onGround;
+
 
     // Moving platforms
     for (const mobs of mobstacles) {
@@ -1516,8 +1511,16 @@
       }
     }
 
+    // Land effect — fires only once on the frame ball first touches ground
+    if (ball.onGround && !wasOnGround) {
+      spawnDust(ball.x, ball.y + ball.radius);
+      setBallSquash(1.4, 0.6);
+    }
+    wasOnGround = ball.onGround;
+
     updateParticles();
     updateBallScale();
+                   
   }
 
   // ===========================
