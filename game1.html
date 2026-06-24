@@ -17,7 +17,7 @@
       height: 100vh;
     }
 
-    /* ── HUD bar ── */
+    /* ── HUD bar (top-left, shown during gameplay) ── */
     #hudBar {
       display: none;
       position: absolute;
@@ -40,7 +40,7 @@
     #diamondHUD { color: #00eeff; border: 2px solid #00eeff; }
     #keyHUD     { color: #ffaa00; border: 2px solid #ffaa00; }
 
-    /* ── Exit button ── */
+    /* ── Exit button (shown during gameplay, top-right) ── */
     #exitBtn {
       display: none;
       position: absolute;
@@ -60,7 +60,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ── Shop button ── */
+    /* ── Shop button (shown during gameplay) ── */
     #shopBtn {
       display: none;
       position: absolute;
@@ -209,9 +209,14 @@
       gap: 15px;
       margin: 20px 0;
     }
-    .levelBtn { width: 60px; height: 60px; font-size: 22px; border-radius: 10px; cursor: pointer; }
+    .levelBtn {
+      width: 60px; height: 60px;
+      font-size: 22px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
 
-    /* ── Overlays ── */
+    /* ── Overlays (Game Over / You Win) ── */
     .centerOverlay {
       display: none;
       position: fixed;
@@ -233,14 +238,25 @@
       text-align: center;
       min-width: 260px;
     }
-    .overlay-box .sub { font-size: 16px; color: gold; margin-top: 10px; }
-    .overlay-btn-row  { display: flex; gap: 14px; justify-content: center; margin-top: 22px; }
+    .overlay-box .sub {
+      font-size: 16px;
+      color: gold;
+      margin-top: 10px;
+    }
+    /* ── Overlay action buttons ── */
+    .overlay-btn-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-top: 22px;
+    }
     .overlay-btn {
       padding: 12px 28px;
       font-size: 16px;
       font-weight: bold;
       border: none;
       border-radius: 10px;
+
       cursor: pointer;
       touch-action: none;
       -webkit-tap-highlight-color: transparent;
@@ -276,7 +292,12 @@
       z-index: 5000;
       min-width: 300px;
     }
-    .settingItem { margin: 20px 0; display: flex; justify-content: space-between; gap: 20px; }
+    .settingItem {
+      margin: 20px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
     #aboutBtn {
       position: absolute;
       top: 60%; left: 27%;
@@ -303,7 +324,7 @@
       z-index: 5000;
       width: 350px;
     }
-    #closeAbout    { margin-top: 20px; padding: 10px 20px; }
+    #closeAbout   { margin-top: 20px; padding: 10px 20px; }
     #closeSettings,
     #resetProgress { width: 100%; margin-top: 15px; padding: 10px; }
 
@@ -325,8 +346,8 @@
       padding: 24px;
       color: #fff;
     }
-    .shop-inner h2  { text-align: center; color: gold; margin: 0 0 6px; }
-    .shop-balances  { text-align: center; margin-bottom: 16px; font-size: 15px; }
+    .shop-inner h2 { text-align: center; color: gold; margin: 0 0 6px; }
+    .shop-balances { text-align: center; margin-bottom: 16px; font-size: 15px; }
     .shop-close-btn {
       width: 100%;
       margin-top: 18px;
@@ -366,10 +387,10 @@
   <div class="hud-item" id="keyHUD">🗝️ 0/10</div>
 </div>
 
-<!-- Exit button -->
+<!-- Exit button (gameplay) -->
 <button id="exitBtn">✖ Exit</button>
 
-<!-- Shop button -->
+<!-- Shop button (gameplay) -->
 <button id="shopBtn">🛒 Shop</button>
 
 <!-- Message board -->
@@ -469,7 +490,7 @@
   </div>
 </div>
 
-<!-- Game Over overlay -->
+<!-- Game Over overlay — Retry + Quit buttons, no full-overlay tap -->
 <div id="playAgainOverlay" class="centerOverlay">
   <div class="overlay-box">
     💀 Game Over
@@ -481,7 +502,7 @@
   </div>
 </div>
 
-<!-- You Win overlay -->
+<!-- You Win overlay — Continue + Main Menu buttons -->
 <div id="youWinOverlay" class="centerOverlay">
   <div class="overlay-box">
     🏆 You Win!
@@ -533,7 +554,7 @@
   }
 
   // ===========================
-  // IMAGES  (fallback to canvas drawing when file missing)
+  // IMAGES  (fallback to solid colour when file is missing)
   // ===========================
   const imgBg        = new Image(); imgBg.src        = 'sky.jpg';
   const imgBall      = new Image(); imgBall.src      = 'ball.png';
@@ -577,10 +598,10 @@
   // LEVEL DATA ARRAYS
   // ===========================
   let blocks     = [], obstacles  = [], obstacless  = [];
-  let mobstacles = [], gate       = [], resetGates  = [];
+  let mobstacles = [], gate       = [];
   let coins      = [], diamonds   = [], keys        = [];
   let jumpBlocks = [], airBlocks  = [], airBlockss  = [];
-  let bombBlocks = [], bombBlockss= [];
+  let bombBlocks = [], bombBlockss= []; fgate =[];
 
   // ===========================
   // PERSISTENT STORAGE
@@ -591,7 +612,9 @@
   let totalDiamonds     = Number(localStorage.getItem('totalDiamonds')) || 0;
   let collectedKeyIds   = JSON.parse(localStorage.getItem('collectedKeyIds') || '[]');
   let totalKeys         = collectedKeyIds.length;
-
+//fake
+let spawnX = 830;
+let spawnY = 630;
   // ===========================
   // HUD
   // ===========================
@@ -600,6 +623,9 @@
   const diamondHUD = document.getElementById('diamondHUD');
   const keyHUD     = document.getElementById('keyHUD');
   const msgBoard   = document.getElementById('msgBoard');
+  //
+
+
 
   function updateHUDs() {
     coinHUD.textContent    = '🪙 '  + totalCoins;
@@ -613,397 +639,10 @@
   // ===========================
   let msgTimer = null;
   function showMsg(text, duration) {
-    msgBoard.textContent   = text;
-    msgBoard.style.display = 'block';
+    msgBoard.textContent    = text;
+    msgBoard.style.display  = 'block';
     clearTimeout(msgTimer);
     msgTimer = setTimeout(() => { msgBoard.style.display = 'none'; }, duration || 3000);
-  }
-
-  // ===========================
-  // BALL GROW (level 4 only)
-  // ===========================
-  const growRate   = 0.5;   // px added per second
-  const maxRadius  = 40;    // cap
-  const baseRadius = 10;    // reset value
-  let lastGrowTime = performance.now();
-
-  function growBall() {
-    if (selectedLevel !== 4) return;
-    const now     = performance.now();
-    const elapsed = (now - lastGrowTime) / 1000;
-    if (elapsed >= 1) {
-      if (ball.radius < maxRadius) ball.radius += growRate;
-      lastGrowTime = now;
-    }
-  }
-
-  // ===========================
-  // VISUAL EFFECTS  (particles)
-  // ===========================
-  const particles = [];
-
-  // Dust puffs on landing
-  function spawnDust(x, y) {
-    for (let i = 0; i < 6; i++) {
-      const angle = Math.PI + (Math.random() - 0.5) * Math.PI;
-      particles.push({
-        type: 'dust',
-        x, y,
-        vx: Math.cos(angle) * (1 + Math.random() * 2),
-        vy: Math.sin(angle) * (1 + Math.random() * 1.5) - 0.5,
-        life: 1,
-        r: 4 + Math.random() * 4,
-        color: '#c8a97a'
-      });
-    }
-  }
-
-  // Sparkles on coin collect
-  function spawnCoinPop(x, y) {
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      particles.push({
-        type: 'spark',
-        x, y,
-        vx: Math.cos(angle) * (2 + Math.random() * 2),
-        vy: Math.sin(angle) * (2 + Math.random() * 2) - 1,
-        life: 1,
-        r: 3 + Math.random() * 3,
-        color: '#f7c948'
-      });
-    }
-    // "+1" float text
-    particles.push({ type: 'text', x, y, vy: -1.2, life: 1, text: '+1', color: '#f7c948' });
-  }
-
-  // Explosion on bomb/lose
-  function spawnExplosion(x, y) {
-    for (let i = 0; i < 14; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 4;
-      particles.push({
-        type: 'spark',
-        x, y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life: 1,
-        r: 4 + Math.random() * 5,
-        color: i % 2 === 0 ? '#ff6b00' : '#ff4444'
-      });
-    }
-  }
-
-  function updateParticles() {
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.life -= 0.04;
-      if (p.type !== 'text') {
-        p.x  += p.vx;
-        p.y  += p.vy;
-        p.vy += 0.1; // gravity on particles
-      } else {
-        p.y += p.vy;
-      }
-      if (p.life <= 0) particles.splice(i, 1);
-    }
-  }
-
-  function drawParticles() {
-    for (const p of particles) {
-      ctx.globalAlpha = Math.max(0, p.life);
-      if (p.type === 'dust') {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x - cameraX, p.y - cameraY, p.r * p.life, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (p.type === 'spark') {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x - cameraX, p.y - cameraY, p.r * p.life, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (p.type === 'text') {
-        ctx.fillStyle  = p.color;
-        ctx.font       = 'bold 16px sans-serif';
-        ctx.textAlign  = 'center';
-        ctx.fillText(p.text, p.x - cameraX, p.y - cameraY);
-      }
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  // ===========================
-  // BALL VISUAL STATE
-  // (squash on jump/land, stored separately from physics)
-  // ===========================
-  let ballScaleX = 1, ballScaleY = 1;
-
-  function setBallSquash(sx, sy) { ballScaleX = sx; ballScaleY = sy; }
-
-  function updateBallScale() {
-    // Ease back to 1,1 each frame
-    ballScaleX += (1 - ballScaleX) * 0.2;
-    ballScaleY += (1 - ballScaleY) * 0.2;
-  }
-
-  // ===========================
-  // DRAW BALL — canvas-drawn with eyes, shine, squash
-  // (used when ball.png is missing)
-  // ===========================
-  function drawBallCanvas(x, y, r) {
-    const sx = ballScaleX, sy = ballScaleY;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(sx, sy);
-
-    // Body gradient
-    const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
-    grad.addColorStop(0,   '#ff9f6b');
-    grad.addColorStop(0.6, '#e63946');
-    grad.addColorStop(1,   '#9b1c1c');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Shine
-    const shine = ctx.createRadialGradient(-r * 0.35, -r * 0.35, 0, -r * 0.2, -r * 0.2, r * 0.55);
-    shine.addColorStop(0,   'rgba(255,255,255,0.55)');
-    shine.addColorStop(1,   'rgba(255,255,255,0)');
-    ctx.fillStyle = shine;
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eyes (only visible when radius is large enough)
-    if (r >= 8) {
-      const ey = -r * 0.1;
-      const ex = r * 0.3;
-      const er = r * 0.22;
-      // Left eye
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(-ex, ey, er, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#222';
-      ctx.beginPath(); ctx.arc(-ex + er * 0.2, ey, er * 0.55, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(-ex + er * 0.35, ey - er * 0.3, er * 0.2, 0, Math.PI * 2); ctx.fill();
-      // Right eye
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(ex, ey, er, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#222';
-      ctx.beginPath(); ctx.arc(ex + er * 0.2, ey, er * 0.55, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(ex + er * 0.35, ey - er * 0.3, er * 0.2, 0, Math.PI * 2); ctx.fill();
-      // Mouth
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth   = r * 0.1;
-      ctx.lineCap     = 'round';
-      ctx.beginPath();
-      ctx.arc(0, r * 0.2, r * 0.3, 0.15, Math.PI - 0.15);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-
-  // ===========================
-  // DRAW COIN — canvas-drawn with gradient + shine
-  // ===========================
-  function drawCoinCanvas(x, y, r) {
-    const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.05, x, y, r);
-    grad.addColorStop(0,   '#fff7aa');
-    grad.addColorStop(0.5, '#f7c948');
-    grad.addColorStop(1,   '#b8860b');
-    ctx.fillStyle   = grad;
-    ctx.strokeStyle = '#d4a017';
-    ctx.lineWidth   = 1.5;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    // Inner ring
-    ctx.strokeStyle = '#d4a017';
-    ctx.lineWidth   = 1;
-    ctx.globalAlpha = 0.5;
-    ctx.beginPath();
-    ctx.arc(x, y, r * 0.7, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    // $ symbol
-    ctx.fillStyle  = '#b8860b';
-    ctx.font       = `bold ${Math.round(r * 1.1)}px Georgia,serif`;
-    ctx.textAlign  = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('$', x, y + r * 0.05);
-    ctx.textBaseline = 'alphabetic';
-    // Shine
-    ctx.fillStyle   = 'rgba(255,255,255,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(x - r * 0.3, y - r * 0.3, r * 0.3, r * 0.18, -Math.PI / 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // ===========================
-  // DRAW DIAMOND — canvas-drawn with facets
-  // ===========================
-  function drawDiamondCanvas(x, y, r) {
-    const grad = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
-    grad.addColorStop(0,   '#a8f0ff');
-    grad.addColorStop(0.4, '#00eeff');
-    grad.addColorStop(1,   '#0077cc');
-    ctx.fillStyle   = grad;
-    ctx.strokeStyle = '#00eeff';
-    ctx.lineWidth   = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(x,     y - r);
-    ctx.lineTo(x + r, y);
-    ctx.lineTo(x,     y + r);
-    ctx.lineTo(x - r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    // Facet lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.lineWidth   = 0.8;
-    ctx.beginPath(); ctx.moveTo(x - r, y); ctx.lineTo(x + r, y); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x, y + r); ctx.stroke();
-    // Shine
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.beginPath();
-    ctx.ellipse(x - r * 0.3, y - r * 0.35, r * 0.25, r * 0.14, -Math.PI / 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // ===========================
-  // DRAW KEY — canvas-drawn
-  // ===========================
-  function drawKeyCanvas(x, y, r) {
-    const grad = ctx.createRadialGradient(x - r * 0.2, y - r * 0.5, r * 0.1, x, y - r * 0.3, r * 0.6);
-    grad.addColorStop(0,   '#ffe680');
-    grad.addColorStop(1,   '#cc8800');
-    ctx.fillStyle   = grad;
-    ctx.strokeStyle = '#996600';
-    ctx.lineWidth   = 1.2;
-    // Key ring
-    ctx.beginPath(); ctx.arc(x, y - r * 0.3, r * 0.55, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#0a0a1a';
-    ctx.beginPath(); ctx.arc(x, y - r * 0.3, r * 0.28, 0, Math.PI * 2); ctx.fill();
-    // Shaft
-    ctx.fillStyle   = grad;
-    ctx.strokeStyle = '#996600';
-    ctx.fillRect(x - r * 0.1, y + r * 0.2, r * 0.22, r * 0.85);
-    ctx.strokeRect(x - r * 0.1, y + r * 0.2, r * 0.22, r * 0.85);
-    // Teeth
-    ctx.fillRect(x + r * 0.12, y + r * 0.5,  r * 0.28, r * 0.18);
-    ctx.fillRect(x + r * 0.12, y + r * 0.75, r * 0.22, r * 0.16);
-    // Shine
-    ctx.fillStyle   = 'rgba(255,255,255,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(x - r * 0.15, y - r * 0.5, r * 0.2, r * 0.12, -Math.PI / 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // ===========================
-  // DRAW GATE — canvas-drawn portal door
-  // ===========================
-  function drawGateCanvas(x, y, w, h) {
-    // Frame
-    const grad = ctx.createLinearGradient(x, y, x, y + h);
-    grad.addColorStop(0,   '#ffe97a');
-    grad.addColorStop(1,   '#cc8800');
-    ctx.fillStyle   = grad;
-    ctx.strokeStyle = '#cc8800';
-    ctx.lineWidth   = 2;
-    ctx.beginPath();
-    ctx.roundRect(x, y, w, h, 4);
-    ctx.fill(); ctx.stroke();
-    // Door panel
-    ctx.fillStyle = '#0a0a18';
-    ctx.fillRect(x + w * 0.1, y + h * 0.08, w * 0.8, h * 0.92);
-    // Portal glow ring
-    ctx.strokeStyle = '#4ecca3';
-    ctx.lineWidth   = 1.5;
-    const cx2 = x + w / 2, cy2 = y + h * 0.55, pr = Math.min(w, h) * 0.28;
-    ctx.beginPath(); ctx.arc(cx2, cy2, pr, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle   = 'rgba(78,204,163,0.25)';
-    ctx.beginPath(); ctx.arc(cx2, cy2, pr, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle   = '#4ecca3';
-    ctx.beginPath(); ctx.arc(cx2, cy2, pr * 0.3, 0, Math.PI * 2); ctx.fill();
-    // Door handle
-    ctx.fillStyle   = grad;
-    ctx.strokeStyle = '#cc8800';
-    ctx.lineWidth   = 1;
-    ctx.beginPath(); ctx.arc(x + w * 0.7, y + h * 0.6, w * 0.08, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    // Frame shine
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    ctx.fillRect(x, y, w * 0.25, h);
-  }
-
-  // ===========================
-  // DRAW JUMP PAD — canvas-drawn
-  // ===========================
-  function drawJumpPadCanvas(x, y, w, h) {
-    // Spring coils
-    ctx.strokeStyle = '#aaa';
-    ctx.lineWidth   = 2;
-    const coils = 4, coilH = h * 0.55 / coils;
-    for (let i = 0; i < coils; i++) {
-      const cy3 = y + h * 0.45 + i * coilH;
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.25, cy3);
-      ctx.lineTo(x + w * 0.75, cy3 + coilH * 0.5);
-      ctx.stroke();
-    }
-    // Pad base (orange with yellow stripe)
-    const padGrad = ctx.createLinearGradient(x, y + h * 0.45, x, y + h);
-    padGrad.addColorStop(0, '#ff9f1c');
-    padGrad.addColorStop(1, '#e05500');
-    ctx.fillStyle = padGrad;
-    ctx.beginPath(); ctx.roundRect(x, y + h * 0.45, w, h * 0.55, 5); ctx.fill();
-    ctx.fillStyle = '#ffe066';
-    ctx.fillRect(x, y + h * 0.45, w, h * 0.12);
-    // Up-arrows
-    ctx.fillStyle = '#4ecca3';
-    ctx.beginPath();
-    ctx.moveTo(x + w * 0.38, y + h * 0.4);
-    ctx.lineTo(x + w * 0.5,  y + h * 0.08);
-    ctx.lineTo(x + w * 0.62, y + h * 0.4);
-    ctx.closePath(); ctx.fill();
-  }
-
-  // ===========================
-  // DRAW BOMB — canvas-drawn
-  // ===========================
-  function drawBombCanvas(x, y, w, h) {
-    const cx3 = x + w / 2, cy3 = y + h * 0.6, br = Math.min(w, h) * 0.42;
-    // Body
-    ctx.fillStyle   = '#1a1a1a';
-    ctx.strokeStyle = '#444';
-    ctx.lineWidth   = 1.5;
-    ctx.beginPath(); ctx.arc(cx3, cy3, br, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    // Fuse base
-    ctx.fillStyle = '#555';
-    ctx.fillRect(cx3 - 3, y + h * 0.15, 6, h * 0.18);
-    // Fuse wire
-    ctx.strokeStyle = '#888';
-    ctx.lineWidth   = 2;
-    ctx.beginPath();
-    ctx.moveTo(cx3, y + h * 0.15);
-    ctx.quadraticCurveTo(cx3 + w * 0.3, y + h * 0.04, cx3 + w * 0.42, y + h * 0.08);
-    ctx.stroke();
-    // Spark
-    ctx.fillStyle = '#ff6b00';
-    ctx.beginPath(); ctx.arc(cx3 + w * 0.42, y + h * 0.06, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fff176';
-    ctx.beginPath(); ctx.arc(cx3 + w * 0.42, y + h * 0.06, 2, 0, Math.PI * 2); ctx.fill();
-    // X mark
-    ctx.strokeStyle = '#ff4444';
-    ctx.lineWidth   = Math.max(2, br * 0.25);
-    ctx.lineCap     = 'round';
-    const xo = br * 0.45;
-    ctx.beginPath(); ctx.moveTo(cx3 - xo, cy3 - xo); ctx.lineTo(cx3 + xo, cy3 + xo); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx3 + xo, cy3 - xo); ctx.lineTo(cx3 - xo, cy3 + xo); ctx.stroke();
-    ctx.lineCap = 'butt';
   }
 
   // ===========================
@@ -1037,9 +676,9 @@
 
       const row = document.createElement('div');
       row.style.cssText = `
-        display:flex;justify-content:space-between;align-items:center;
-        background:#1a1a1a;border:1px solid #333;border-radius:12px;
-        padding:12px 14px;margin-bottom:10px;gap:10px;`;
+        display:flex; justify-content:space-between; align-items:center;
+        background:#1a1a1a; border:1px solid #333; border-radius:12px;
+        padding:12px 14px; margin-bottom:10px; gap:10px;`;
 
       row.innerHTML = `
         <div>
@@ -1060,9 +699,9 @@
 
     list.querySelectorAll('button[data-id]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id    = btn.dataset.id;
-        const cost  = Number(btn.dataset.cost);
-        const type  = btn.dataset.type;
+        const id   = btn.dataset.id;
+        const cost = Number(btn.dataset.cost);
+        const type = btn.dataset.type;
         const owned = getOwned();
         if (owned.includes(id)) return;
 
@@ -1099,8 +738,8 @@
       document.documentElement.requestFullscreen();
   }
 
-  document.getElementById('aboutBtn').addEventListener('click',    () => document.getElementById('aboutMenu').style.display = 'block');
-  document.getElementById('closeAbout').addEventListener('click',  () => document.getElementById('aboutMenu').style.display = 'none');
+  document.getElementById('aboutBtn').addEventListener('click',   () => document.getElementById('aboutMenu').style.display = 'block');
+  document.getElementById('closeAbout').addEventListener('click', () => document.getElementById('aboutMenu').style.display = 'none');
   document.getElementById('settingsBtn').addEventListener('click',   () => settingsMenu.style.display = 'block');
   document.getElementById('closeSettings').addEventListener('click', () => settingsMenu.style.display = 'none');
 
@@ -1110,8 +749,8 @@
   });
 
   themeSelect.addEventListener('change', e => {
-    document.body.style.background = e.target.value === 'light' ? 'white' : 'black';
-    canvas.style.background        = e.target.value === 'light' ? '#ddd'  : '#222';
+    document.body.style.background = e.target.value === 'light' ? 'white'  : 'black';
+    canvas.style.background        = e.target.value === 'light' ? '#ddd'   : '#222';
     localStorage.setItem('theme', e.target.value);
   });
 
@@ -1123,7 +762,7 @@
     const s = localStorage.getItem('sound');
     const v = localStorage.getItem('vibration');
     const t = localStorage.getItem('theme');
-    if (s !== null) soundToggle.checked     = s === 'true';
+    if (s !== null) soundToggle.checked    = s === 'true';
     if (v !== null) vibrationToggle.checked = v === 'true';
     if (t) { themeSelect.value = t; themeSelect.dispatchEvent(new Event('change')); }
   });
@@ -1132,7 +771,7 @@
   // LEVEL SELECT
   // ===========================
   const levelMenu = document.getElementById('levelMenu');
-  document.getElementById('lvlbtn').addEventListener('click',      () => levelMenu.style.display = 'block');
+  document.getElementById('lvlbtn').addEventListener('click',     () => levelMenu.style.display = 'block');
   document.getElementById('closeLevels').addEventListener('click', () => levelMenu.style.display = 'none');
 
   document.querySelectorAll('.levelBtn').forEach(btn => {
@@ -1149,7 +788,7 @@
   // GAMEPLAY UI HELPERS
   // ===========================
   function showGameplayUI() {
-    hudBar.style.display                               = 'flex';
+    hudBar.style.display                              = 'flex';
     document.getElementById('controls').style.display = 'flex';
     document.getElementById('exitBtn').style.display  = 'block';
     document.getElementById('shopBtn').style.display  = 'block';
@@ -1165,10 +804,12 @@
     document.getElementById('aboutMenu').style.display   = 'none';
   }
 
-  function returnToMenu() { location.reload(); }
+  function returnToMenu() {
+    location.reload();   // simplest clean reset to main menu
+  }
 
   // ===========================
-  // EXIT BUTTON
+  // EXIT BUTTON (during gameplay)
   // ===========================
   document.getElementById('exitBtn').addEventListener('click', () => {
     if (!gameRunning) return;
@@ -1186,7 +827,6 @@
     gameRunning = false;
     cancelAnimationFrame(anim);
     playSound(loseSound);
-    spawnExplosion(ball.x, ball.y);
 
     document.getElementById('loseCoinsMsg').innerHTML =
       '🪙 ' + coinsCollected + ' coins &nbsp; 💎 ' + diamondsCollected + ' diamonds';
@@ -1208,7 +848,6 @@
   // Lose overlay buttons
   document.getElementById('retryBtn').addEventListener('click', () => {
     document.getElementById('playAgainOverlay').style.display = 'none';
-    particles.length = 0;
     loadLevel(selectedLevel);
     gameRunning = true;
     loop();
@@ -1249,7 +888,7 @@
     const upBtn    = document.getElementById('upBtn');
 
     let leftCount = 0, rightCount = 0;
-    let jumpBuffered    = false;
+    let jumpBuffered  = false;
     let jumpBufferTimer = null;
 
     function updateMovement() {
@@ -1264,14 +903,15 @@
         ball.onGround = false;
         playSound(jumpSound);
         jumpBuffered  = false;
-        setBallSquash(1.3, 0.7); // stretch tall on jump
       } else {
+        // Buffer: fire instantly when ball lands within 120 ms
         jumpBuffered = true;
         clearTimeout(jumpBufferTimer);
         jumpBufferTimer = setTimeout(() => { jumpBuffered = false; }, 120);
       }
     }
 
+    // Called in update() after onGround is set true
     window._checkBufferedJump = function () {
       if (jumpBuffered && ball.onGround) {
         ball.dy       = jumpPower;
@@ -1279,7 +919,6 @@
         playSound(jumpSound);
         jumpBuffered  = false;
         clearTimeout(jumpBufferTimer);
-        setBallSquash(1.3, 0.7);
       }
     };
 
@@ -1307,25 +946,41 @@
     bindBtn(upBtn, () => tryJump(), () => {});
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowRight')               { rightCount = 1; updateMovement(); }
-      if (e.key === 'ArrowLeft')                { leftCount  = 1; updateMovement(); }
-      if (e.key === 'ArrowUp' || e.key === ' ')  tryJump();
+      if (e.key === 'ArrowRight')              { rightCount = 1; updateMovement(); }
+      if (e.key === 'ArrowLeft')               { leftCount  = 1; updateMovement(); }
+      if (e.key === 'ArrowUp' || e.key === ' ') tryJump();
     });
     document.addEventListener('keyup', e => {
       if (e.key === 'ArrowRight') { rightCount = 0; updateMovement(); }
       if (e.key === 'ArrowLeft')  { leftCount  = 0; updateMovement(); }
     });
   }
+//
+//grow
+//  LEVEL 4
+const growRate    = 0.5;   // px per second
+const maxRadius   = 40;    // max size
+const baseRadius  = 10;    // starting size
+let lastGrowTime  = performance.now();
 
+function growBall() {
+  // Only grow on level 4
+  if (selectedLevel !== 4) return;
+
+  const now     = performance.now();
+  const elapsed = (now - lastGrowTime) / 1000;
+
+  if (elapsed >= 1) {
+    if (ball.radius < maxRadius) {
+      ball.radius += growRate;
+    }
+    lastGrowTime = now;
+  }
+}
   // ===========================
   // UPDATE
   // ===========================
-  // Track previous onGround state for land-dust trigger
-  let wasOnGround = false;
-
   function update() {
-    growBall();
-
     ball.x  += ball.dx;
     ball.y  += ball.dy;
     ball.dy += gravity;
@@ -1333,6 +988,9 @@
 
     cameraX = ball.x - canvas.width  / 2;
     cameraY = ball.y - canvas.height / 2;
+
+growBall();  
+  ball.x += ball.dx;
 
     // Solid blocks
     for (const block of blocks) {
@@ -1352,7 +1010,6 @@
         }
       }
     }
-
 
 
     // Moving platforms
@@ -1391,7 +1048,6 @@
         localStorage.setItem('totalCoins', totalCoins);
         updateHUDs();
         playSound(coinSound);
-        spawnCoinPop(coin.x, coin.y);
       }
     }
 
@@ -1405,7 +1061,6 @@
         localStorage.setItem('totalDiamonds', totalDiamonds);
         updateHUDs();
         playSound(diamondSound);
-        spawnCoinPop(dia.x, dia.y);
         showMsg('💎 Diamond collected!', 2000);
       }
     }
@@ -1438,7 +1093,7 @@
           ball.dx = 0;
         } else {
           ball.y += dy > 0 ? oy : -oy;
-          if (dy < 0) { ball.dy = jumpPower * (jb.boost || 1.8); playSound(bounceSound); setBallSquash(1.25, 0.75); }
+          if (dy < 0) { ball.dy = jumpPower * (jb.boost || 1.8); playSound(bounceSound); }
           else         ball.dy = 0;
         }
       }
@@ -1464,7 +1119,7 @@
       }
     }
 
-    // Bomb blocks (fake — sound only)
+    // Bomb blocks (fake — sound only, no lose)
     for (const bbb of bombBlockss) {
       if (ball.x+ball.radius > bbb.x && ball.x-ball.radius < bbb.x+bbb.width &&
           ball.y+ball.radius > bbb.y && ball.y-ball.radius < bbb.y+bbb.height) {
@@ -1484,22 +1139,11 @@
 
     // Monster obstacles (kill)
     for (const obss of obstacless) {
-      if (obss.dx) { obss.x += obss.dx; if (obss.x > obss.sx+100 || obss.x < obss.sx-100) obss.dx *= -1; }
-      if (obss.dy) { obss.y += obss.dy; if (obss.y > obss.sy+100 || obss.y < obss.sy-100) obss.dy *= -1; }
+      if (obss.dx) { obss.x += obss.dx; if (obss.x > obss.sx+9000 || obss.x < obss.sx-9000) obss.dx *= -1; }
+      if (obss.dy) { obss.y += obss.dy; if (obss.y > obss.sy+9000|| obss.y < obss.sy-9000) obss.dy *= -1; }
       if (ball.x+ball.radius > obss.x && ball.x-ball.radius < obss.x+obss.width &&
           ball.y+ball.radius > obss.y && ball.y-ball.radius < obss.y+obss.height) {
         triggerLose();
-      }
-    }
-
-    // Reset gates (teleport back to start position)
-    for (const rg of resetGates) {
-      if (ball.x+ball.radius > rg.x && ball.x-ball.radius < rg.x+rg.width &&
-          ball.y+ball.radius > rg.y && ball.y-ball.radius < rg.y+rg.height) {
-        ball.x = rg.startX; ball.y = rg.startY;
-        ball.dx = 0; ball.dy = 0;
-        spawnDust(ball.x, ball.y + ball.radius);
-        showMsg('⚠️ Back to start!', 1500);
       }
     }
 
@@ -1510,19 +1154,20 @@
         triggerWin();
       }
     }
-
-    // Land effect — fires only once on the frame ball first touches ground
-    if (ball.onGround && !wasOnGround) {
-      spawnDust(ball.x, ball.y + ball.radius);
-      setBallSquash(1.4, 0.6);
-    }
-    wasOnGround = ball.onGround;
-
-    updateParticles();
-    updateBallScale();
-                   
   }
-
+   // Gate (win)
+    for (const fgbs of fgate) {
+      if (ball.x+ball.radius > fgbs.x && ball.x-ball.radius < fgbs.x+fgbs.width &&
+          ball.y+ball.radius > fgbs.y && ball.y-ball.radius < fgbs.y+fgbs.width && !fgbs.mov) {
+            if(fgbs!=mov){
+         fgbs.x = 830;
+         fgbs.y = 630;
+         fgbs.mov = true;
+      }}
+      else{
+        triggerWin();
+      }
+    }
   // ===========================
   // DRAW
   // ===========================
@@ -1534,38 +1179,22 @@
       ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
 
     // Solid blocks
-    for (const b of blocks) {
-      if (imgBlock.complete && imgBlock.naturalWidth > 0) {
-        ctx.drawImage(imgBlock, b.x-cameraX, b.y-cameraY, b.width, b.height);
-      } else {
-        // Canvas-drawn grass block
-        ctx.fillStyle = '#5a3a1a';
-        ctx.fillRect(b.x-cameraX, b.y-cameraY, b.width, b.height);
-        ctx.fillStyle = '#2d8a2d';
-        ctx.fillRect(b.x-cameraX, b.y-cameraY, b.width, Math.min(16, b.height));
-      }
-    }
+    for (const b of blocks)
+      drawImg(imgBlock, 'green', b.x-cameraX, b.y-cameraY, b.width, b.height);
 
     // Moving platforms
-    for (const m of mobstacles) {
-      if (imgMob.complete && imgMob.naturalWidth > 0) {
-        ctx.drawImage(imgMob, m.x-cameraX, m.y-cameraY, m.width, m.height);
-      } else {
-        const mg = ctx.createLinearGradient(m.x-cameraX, m.y-cameraY, m.x-cameraX, m.y-cameraY+m.height);
-        mg.addColorStop(0, '#78c0e0'); mg.addColorStop(1, '#1a6080');
-        ctx.fillStyle = mg;
-        ctx.beginPath(); ctx.roundRect(m.x-cameraX, m.y-cameraY, m.width, m.height, 6); ctx.fill();
-        ctx.strokeStyle = '#4ecca3'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.roundRect(m.x-cameraX, m.y-cameraY, m.width, m.height, 6); ctx.stroke();
-      }
-    }
+    for (const m of mobstacles)
+      drawImg(imgMob, 'gray', m.x-cameraX, m.y-cameraY, m.width, m.height);
 
     // Jump blocks
     for (const jb of jumpBlocks) {
       if (imgJump.complete && imgJump.naturalWidth > 0) {
         ctx.drawImage(imgJump, jb.x-cameraX, jb.y-cameraY, jb.width, jb.height);
       } else {
-        drawJumpPadCanvas(jb.x-cameraX, jb.y-cameraY, jb.width, jb.height);
+        ctx.fillStyle = 'orange';
+        ctx.fillRect(jb.x-cameraX, jb.y-cameraY, jb.width, jb.height);
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(jb.x-cameraX, jb.y-cameraY, jb.width, 4);
       }
     }
 
@@ -1574,29 +1203,33 @@
       if (imgAir.complete && imgAir.naturalWidth > 0) {
         ctx.drawImage(imgAir, ab.x-cameraX, ab.y-cameraY, ab.width, ab.height);
       } else {
-        ctx.fillStyle = 'rgba(0,255,255,0.3)';
+        ctx.fillStyle = 'rgba(0,255,255,0.4)';
         ctx.fillRect(ab.x-cameraX, ab.y-cameraY, ab.width, ab.height);
-        ctx.strokeStyle = 'rgba(0,255,255,0.7)'; ctx.lineWidth = 1.5;
-        ctx.strokeRect(ab.x-cameraX, ab.y-cameraY, ab.width, ab.height);
       }
     }
 
-    // Fake air blocks
+    // Fake air blocks (drawn as green blocks)
     for (const abb of airBlockss) {
       if (imgAir.complete && imgAir.naturalWidth > 0) {
         ctx.drawImage(imgAir, abb.x-cameraX, abb.y-cameraY, abb.width, abb.height);
       } else {
-        ctx.fillStyle = '#2d8a2d';
+        ctx.fillStyle = 'green';
         ctx.fillRect(abb.x-cameraX, abb.y-cameraY, abb.width, abb.height);
       }
     }
 
-    // Bomb blocks (real + fake)
+    // Bomb blocks (real)
     for (const bb of [...bombBlocks, ...bombBlockss]) {
       if (imgBomb.complete && imgBomb.naturalWidth > 0) {
         ctx.drawImage(imgBomb, bb.x-cameraX, bb.y-cameraY, bb.width, bb.height);
       } else {
-        drawBombCanvas(bb.x-cameraX, bb.y-cameraY, bb.width, bb.height);
+        ctx.fillStyle = 'darkred';
+        ctx.fillRect(bb.x-cameraX, bb.y-cameraY, bb.width, bb.height);
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(bb.x-cameraX+bb.width/2, bb.y-cameraY+bb.height/2,
+                Math.min(bb.width, bb.height)/3, 0, Math.PI*2);
+        ctx.fill();
       }
     }
 
@@ -1608,7 +1241,10 @@
           coin.x-cameraX-coin.radius, coin.y-cameraY-coin.radius,
           coin.radius*2, coin.radius*2);
       } else {
-        drawCoinCanvas(coin.x-cameraX, coin.y-cameraY, coin.radius);
+        ctx.fillStyle = 'gold';
+        ctx.beginPath();
+        ctx.arc(coin.x-cameraX, coin.y-cameraY, coin.radius, 0, Math.PI*2);
+        ctx.fill();
       }
     }
 
@@ -1620,7 +1256,13 @@
           dia.x-cameraX-dia.radius, dia.y-cameraY-dia.radius,
           dia.radius*2, dia.radius*2);
       } else {
-        drawDiamondCanvas(dia.x-cameraX, dia.y-cameraY, dia.radius);
+        const x = dia.x-cameraX, y = dia.y-cameraY, r = dia.radius;
+        ctx.fillStyle = '#00eeff';
+        ctx.beginPath();
+        ctx.moveTo(x, y-r); ctx.lineTo(x+r, y);
+        ctx.lineTo(x, y+r); ctx.lineTo(x-r, y);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
       }
     }
 
@@ -1632,78 +1274,42 @@
           k.x-cameraX-k.radius, k.y-cameraY-k.radius,
           k.radius*2, k.radius*2);
       } else {
-        drawKeyCanvas(k.x-cameraX, k.y-cameraY, k.radius);
+        const x = k.x-cameraX, y = k.y-cameraY, r = k.radius;
+        ctx.fillStyle = '#ffaa00';
+        ctx.beginPath(); ctx.arc(x, y-r*0.3, r*0.55, 0, Math.PI*2); ctx.fill();
+        ctx.fillRect(x-r*0.12, y, r*0.25, r*0.9);
+        ctx.fillRect(x, y+r*0.3, r*0.4,  r*0.18);
+        ctx.fillRect(x, y+r*0.6, r*0.35, r*0.18);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y-r*0.3, r*0.55, 0, Math.PI*2); ctx.stroke();
       }
     }
 
     // Obstacles
-    for (const obs of obstacles) {
-      if (imgObstacles.complete && imgObstacles.naturalWidth > 0) {
-        ctx.drawImage(imgObstacles, obs.x-cameraX, obs.y-cameraY, obs.width, obs.height);
-      } else {
-        // Canvas skull obstacle
-        ctx.fillStyle = '#7b2d8b';
-        ctx.fillRect(obs.x-cameraX, obs.y-cameraY, obs.width, obs.height);
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.font      = `bold ${Math.min(obs.width, obs.height) * 0.7}px sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('☠', obs.x-cameraX+obs.width/2, obs.y-cameraY+obs.height/2);
-        ctx.textBaseline = 'alphabetic';
-      }
-    }
+    for (const obs of obstacles)
+      drawImg(imgObstacles, 'purple', obs.x-cameraX, obs.y-cameraY, obs.width, obs.height);
 
     // Monster obstacles
-    for (const obss of obstacless) {
-      if (imgObstacle.complete && imgObstacle.naturalWidth > 0) {
-        ctx.drawImage(imgObstacle, obss.x-cameraX, obss.y-cameraY-25, 100, 100);
-      } else {
-        ctx.fillStyle = '#cc0000';
-        ctx.fillRect(obss.x-cameraX, obss.y-cameraY-25, 100, 100);
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font      = 'bold 40px sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('👾', obss.x-cameraX+50, obss.y-cameraY+25);
-        ctx.textBaseline = 'alphabetic';
-      }
-    }
+    for (const obss of obstacless)
+      drawImg(imgObstacle, 'red', obss.x-cameraX, obss.y-cameraY-25, 100, 100);
 
-    // Reset gates
-    for (const rg of resetGates) {
-      ctx.fillStyle   = 'rgba(255,50,50,0.18)';
-      ctx.strokeStyle = '#ff4444';
-      ctx.lineWidth   = 2.5;
-      ctx.setLineDash([6, 3]);
-      ctx.fillRect  (rg.x-cameraX, rg.y-cameraY, rg.width, rg.height);
-      ctx.strokeRect(rg.x-cameraX, rg.y-cameraY, rg.width, rg.height);
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#ff4444';
-      ctx.font      = `bold ${Math.min(rg.width, rg.height) * 0.5}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('↩', rg.x-cameraX+rg.width/2, rg.y-cameraY+rg.height/2);
-      ctx.textBaseline = 'alphabetic';
-    }
+    // Gate and fake gate
+    for (const gbs of gate)
+      drawImg(imgGate, 'gold', gbs.x-cameraX, gbs.y-cameraY, gbs.width, gbs.height);
+     for (const fgbs of fgate)
+      drawImg(imgGate, 'gold', fgbs.x-cameraX, fgbs.y-cameraY, fgbs.width, fgbs.height);
 
-    // Gate
-    for (const gbs of gate) {
-      if (imgGate.complete && imgGate.naturalWidth > 0) {
-        ctx.drawImage(imgGate, gbs.x-cameraX, gbs.y-cameraY, gbs.width, gbs.height);
-      } else {
-        drawGateCanvas(gbs.x-cameraX, gbs.y-cameraY, gbs.width, gbs.height);
-      }
-    }
 
-    // Particles (behind ball)
-    drawParticles();
-
-    // Player ball
+    // Player
     if (imgBall.complete && imgBall.naturalWidth > 0) {
-      ctx.save();
-      ctx.translate(ball.x-cameraX, ball.y-cameraY);
-      ctx.scale(ballScaleX, ballScaleY);
-      ctx.drawImage(imgBall, -ball.radius, -ball.radius, ball.radius*2, ball.radius*2);
-      ctx.restore();
+      ctx.drawImage(imgBall,
+        ball.x-cameraX-ball.radius, ball.y-cameraY-ball.radius,
+        ball.radius*2, ball.radius*2);
     } else {
-      drawBallCanvas(ball.x-cameraX, ball.y-cameraY, ball.radius);
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(ball.x-cameraX, ball.y-cameraY, ball.radius, 0, Math.PI*2);
+      ctx.fill();
     }
   }
 
@@ -1720,24 +1326,20 @@
   // ===========================
   // LEVEL DESIGN REFERENCE
   // ===========================
-  // blocks:      { x, y, width, height }
-  // obstacles:   { x, y, width, height, dx/dy, sx/sy }   moving hazard (kill)
-  // obstacless:  { x, y, width, height, dx/dy, sx/sy }   monster hazard (kill, drawn 100×100)
-  // mobstacles:  { x, y, width, height, dx/dy, sx/sy }   rideable moving platform
-  // gate:        { x, y, width, height, mov:false }        finish goal
-  // resetGates:  { x, y, width, height, startX, startY }  teleport ball back on touch
-  // coins:       { x, y, radius, collected:false }
-  // diamonds:    { x, y, radius, collected:false }
-  // keys:        { id:'k1', x, y, radius, collected:false }  id unique k1-k10
-  // jumpBlocks:  { x, y, width, height, boost }
-  // airBlocks:   { x, y, width, height, forceX, forceY }
-  // airBlockss:  same shape (fake — no visual glow, drawn green)
-  // bombBlocks:  { x, y, width, height }                   kill on touch
-  // bombBlockss: { x, y, width, height }                   sound only, no kill
-  // showMsg("text", ms)   — show message board text
-  // spawnDust(x, y)       — dust particles at position
-  // spawnCoinPop(x, y)    — sparkle + +1 text at position
-  // spawnExplosion(x, y)  — explosion particles
+  // blocks:      { x, y, width, height }                       solid platform
+  // obstacles:   { x, y, width, height, dx/dy, sx/sy }         moving hazard (kill)
+  // obstacless:  { x, y, width, height, dx/dy, sx/sy }         monster hazard (kill)
+  // mobstacles:  { x, y, width, height, dx/dy, sx/sy }         rideable moving platform
+  // gate:        { x, y, width, height, mov:false }             finish goal
+  // coins:       { x, y, radius, collected:false }              🪙 coin
+  // diamonds:    { x, y, radius, collected:false }              💎 diamond
+  // keys:        { id:'k1', x, y, radius, collected:false }     🗝️ key  (id unique k1-k10)
+  // jumpBlocks:  { x, y, width, height, boost }                 bounce pad
+  // airBlocks:   { x, y, width, height, forceX, forceY }        wind zone
+  // airBlockss:  same as airBlocks (invisible/fake, drawn green)
+  // bombBlocks:  { x, y, width, height }                        bomb (kill)
+  // bombBlockss: { x, y, width, height }                        fake bomb (sound only)
+  // showMsg("text", ms)  — display board message during gameplay
 
   // ===========================
   // LEVEL LOADER
@@ -1746,19 +1348,18 @@
     // Reset run state
     coinsCollected    = 0;
     diamondsCollected = 0;
-    coins      = []; diamonds   = []; keys        = [];
-    jumpBlocks = []; airBlocks  = []; airBlockss  = [];
-    bombBlocks = []; bombBlockss= []; obstacless  = [];
-    resetGates = [];
-    particles.length = 0;
-    ball.radius  = baseRadius;
-    lastGrowTime = performance.now();
+    coins      = []; diamonds  = []; keys       = [];
+    jumpBlocks = []; airBlocks = []; airBlockss = [];
+    bombBlocks = []; bombBlockss = [];
+    obstacless = []; 
+     //grow
+      ball.radius  = baseRadius;
+      lastGrowTime = performance.now();
 
     // ── LEVEL 1 ──
     if (level === 1) {
-      ball = { x:1650, y:630, radius:baseRadius, dx:0, dy:0, onGround:false };
+      ball = { x:1650, y:630, radius:10, dx:0, dy:0, onGround:false };
       gravity = 0.5; jumpPower = -12;
-
       blocks = [
         { x:30,    y:630,  width:5500, height:1000 },
         { x:-1300, y:830,  width:5500, height:1000 },
@@ -1776,6 +1377,7 @@
         { x:1950,  y:-50,  width:50,   height:50   },
         { x:6000,  y:620,  width:100,  height:20   },
       ];
+
       mobstacles = [
         { x:1400, y:530, width:10, height:100, sx:1400, sy:530, dy:2  },
         { x:1600, y:530, width:10, height:100, sx:1600, sy:530, dy:-2 },
@@ -1783,6 +1385,7 @@
         { x:1300, y:530, width:10, height:100, sx:2100, sy:530, dy:-3 },
         { x:-950, y:830, width:30, height:35,  sx:-950, sy:800, dy:-1 },
       ];
+
       obstacles = [
         { x:850,  y:380, width:20, height:70, sx:750, sy:460, dy:-2  },
         { x:950,  y:380, width:20, height:70, sx:750, sy:460, dy:-1  },
@@ -1796,11 +1399,14 @@
         { x:100,  y:380, width:20, height:70, sx:750, sy:460, dy:-10 },
         { x:5500, y:1000,width:3500,height:10 },
       ];
+
       obstacless = [
         { x:-200, y:800, width:35, height:35, sx:-250, dx:-2 },
         { x:-600, y:800, width:35, height:35, sx:-650, dx:-2 },
       ];
+
       gate = [{ x:-1300, y:780, width:50, height:50, mov:false }];
+
       coins = [
         { x:850,  y:620, radius:10, collected:false },
         { x:950,  y:620, radius:10, collected:false },
@@ -1821,8 +1427,11 @@
         { x:2900, y:620, radius:10, collected:false },
         { x:3150, y:620, radius:10, collected:false },
       ];
-      diamonds  = [{ x:0, y:800, radius:10, collected:false }];
-      keys      = [{ id:'k2', x:6050, y:600, radius:14, collected:false }];
+
+      diamonds = [{ x:0, y:800, radius:10, collected:false }];
+
+      keys = [{ id:'k2', x:6050, y:600, radius:14, collected:false }];
+
       airBlocks = [
         { x:-1390, y:850,  width:90, height:1200, forceX:90000              },
         { x:4500,  y:-1000,width:90, height:2500, forceX:90000              },
@@ -1832,16 +1441,18 @@
         { x:5700,  y:620,  width:90, height:100,  forceX:10000, forceY:-10000 },
         { x:5600,  y:620,  width:90, height:100,  forceX:10000, forceY:-10000 },
       ];
+
       bombBlocks = [
         { x:-1210, y:800, width:30, height:30 },
         { x:3000,  y:620, width:30, height:30 },
       ];
+
       setTimeout(() => showMsg('LEVEL 1 — Avoid the obstacles!', 4000), 800);
     }
 
     // ── LEVEL 2 ──
     if (level === 2) {
-      ball = { x:830, y:630, radius:baseRadius, dx:0, dy:0, onGround:false };
+      ball = { x:830, y:630, radius:10, dx:0, dy:0, onGround:false };
       gravity = 0.5; jumpPower = -12.5;
 
       blocks = [
@@ -1870,56 +1481,65 @@
         { x:25,   y:-550, width:50,   height:20   },
         { x:-100, y:-600, width:100,  height:20   },
         { x:-200, y:-700, width:100,  height:20   },
-        { x:-100, y:-800, width:100,  height:20   },
-        { x:-50,  y:-900, width:100,  height:20   },
-        { x:50,   y:-1000,width:100,  height:20   },
-        { x:150,  y:-1100,width:100,  height:20   },
-        { x:240,  y:-4100,width:100,  height:20   },
-        { x:800,  y:-4150,width:200,  height:20   },
-        { x:1060, y:-4250,width:100,  height:20   },
-        { x:1000, y:-820, width:250,  height:20   },
-        { x:1200, y:-4350,width:400,  height:20   },
+         { x:-100, y:-800, width:100,  height:20   },
+          { x:-50, y:-900, width:100,  height:20   },
+           { x:50, y:-1000, width:100,  height:20   },
+            { x:150, y:-1100, width:100,  height:20   },
+            { x:240, y:-4100,width:100, height:20},
+            { x:800, y:-4150,width:200, height:20},
+            { x:1060, y:-4250,width:100, height:20},
+             { x:1000, y:-820,width:250, height:20},
+             //key
+             { x:1200, y:-4350,width:400, height:20},
       ];
+
       obstacless = [
         { x:2900, y:1500, width:35, height:35, sy:1490, dy:2  },
         { x:2600, y:1550, width:35, height:35, sx:2650, dx:2  },
-        { x:1320, y:-4450,width:15, height:15, sy:-4350,dy:2  },
-        { x:1380, y:-4450,width:15, height:15, sy:-4350,dy:1  },
+         { x:1320, y:-4450, width:15, height:15, sy:-4350, dy:2  },
+          { x:1380, y:-4450, width:15, height:15, sy:-4350, dy:1 },
       ];
+
       mobstacles = [
-        { x:400,  y:20,   width:100, height:20,   sx:300, sy:200, dx:2 },
-        { x:1100, y:50,   width:100, height:505,  sy:50,  dy:2         },
-        { x:2200, y:50,   width:100, height:1505, sy:50,  dy:2         },
+        { x:400,  y:20,  width:100, height:20,   sx:300, sy:200, dx:2 },
+        { x:1100, y:50,  width:100, height:505,  sy:50,  dy:2         },
+        { x:2200, y:50,  width:100, height:1505, sy:50,  dy:2         },
       ];
+
       obstacles = [
         { x:3100, y:1800, width:500,  height:40,  dx:1, sx:620 },
         { x:600,  y:130,  width:10,   height:40,  dx:1, sx:620 },
         { x:-800, y:630,  width:1000, height:4000              },
         { x:300,  y:-320, width:10,   height:20,  dx:1, sx:320 },
       ];
+
       gate = [{ x:1550, y:-4390, width:30, height:40, mov:false }];
+
       coins = [
-        { x:820,  y:470,  radius:8, collected:false },
-        { x:720,  y:370,  radius:8, collected:false },
-        { x:420,  y:60,   radius:8, collected:false },
-        { x:-150, y:-740, radius:8, collected:false },
-        { x:1950, y:20,   radius:8, collected:false },
-        { x:2000, y:20,   radius:8, collected:false },
-        { x:2050, y:20,   radius:8, collected:false },
-        { x:2100, y:20,   radius:8, collected:false },
-        { x:2150, y:20,   radius:8, collected:false },
-        { x:1700, y:20,   radius:8, collected:false },
-        { x:1550, y:20,   radius:8, collected:false },
-        { x:1500, y:20,   radius:8, collected:false },
-        { x:1450, y:20,   radius:8, collected:false },
-        { x:1300, y:20,   radius:8, collected:false },
-        { x:-65,  y:-909, radius:8, collected:false },
-        { x:65,   y:-1009,radius:8, collected:false },
-        { x:179,  y:-1109,radius:8, collected:false },
-        { x:260,  y:-4109,radius:8, collected:false },
-        { x:870,  y:-4159,radius:8, collected:false },
-        { x:1120, y:-4259,radius:8, collected:false },
+        { x:820,  y:470, radius:8, collected:false },
+        { x:720,  y:370, radius:8, collected:false },
+        { x:420,  y:60,  radius:8, collected:false },
+        { x:-150, y:-740,radius:8, collected:false },
+        { x:1950, y:20,  radius:8, collected:false },
+        { x:2000, y:20,  radius:8, collected:false },
+        { x:2050, y:20,  radius:8, collected:false },
+        { x:2100, y:20,  radius:8, collected:false },
+        { x:2150, y:20,  radius:8, collected:false },
+        { x:1700, y:20,  radius:8, collected:false },
+        { x:1550, y:20,  radius:8, collected:false },
+        { x:1500, y:20,  radius:8, collected:false },
+        { x:1450, y:20,  radius:8, collected:false },
+        { x:1300, y:20,  radius:8, collected:false },
+        { x:-65, y:-909,  radius:8, collected:false },
+        { x:65, y:-1009,  radius:8, collected:false },
+        { x:179, y:-1109,  radius:8, collected:false },
+        { x:260, y:-4109,  radius:8, collected:false },
+        { x:870, y:-4159,  radius:8, collected:false },
+        { x:1120, y:-4259,  radius:8, collected:false },
+        
+
       ];
+
       diamonds = [
         { x:700,  y:390,  radius:12, collected:false },
         { x:3000, y:1600, radius:12, collected:false },
@@ -1928,30 +1548,30 @@
         { x:3000, y:1530, radius:12, collected:false },
         { x:3000, y:1450, radius:12, collected:false },
       ];
+
       keys       = [{ id:'k1', x:550, y:750, radius:14, collected:false }];
-      jumpBlocks = [
-        { x:300,  y:620,  width:100, height:20, boost:2 },
-        { x:1000, y:-850, width:250, height:20, boost:5 },
+      jumpBlocks = [{ x:300, y:620, width:100, height:20, boost:2 },
+          { x:1000, y:-850,width:250, height:20,boost:5}
       ];
-      airBlocks  = [
-        { x:190, y:-2100, width:10, height:1000, forceX:0, forceY:-10 },
-        { x:210, y:-3100, width:10, height:1000, forceX:0, forceY:-10 },
-        { x:230, y:-4100, width:10, height:1000, forceX:0, forceY:-10 },
-        { x:240, y:-4150, width:520,height:10,   forceX:0, forceY:-2  },
+      airBlocks  = [{ x:190, y:-2100,width:10, height:1000, forceX:0, forceY:-10 },
+        { x:210, y:-3100,width:10, height:1000, forceX:0, forceY:-10 },
+        { x:230, y:-4100,width:10, height:1000, forceX:0, forceY:-10 },
+        { x:240, y:-4150,width:520, height:10, forceX:0, forceY:-2 }
       ];
       bombBlocks = [{ x:1600, y:-10, width:40, height:40 }];
       bombBlockss= [{ x:1800, y:-10, width:40, height:40 }];
       airBlockss = [
         { x:1800, y:30,   width:33,  height:1590, forceX:0,    forceY:0 },
-        { x:300,  y:1570, width:1500,height:50,   forceX:-100, forceY:0 },
+        { x:300,  y:1570, width:1500,height:50,   forceX:-100, forceY:0 }
       ];
       setTimeout(() => showMsg('LEVEL 2 — Go high!', 4000), 800);
-    }
-
+    } 
     // ── LEVEL 3 ──
     if (level === 3) {
-      ball = { x:830, y:630, radius:baseRadius, dx:0, dy:0, onGround:false };
+      ball = { x:720, y:100, radius:10, dx:0, dy:0, onGround:false };
       gravity = 0.5; jumpPower = -10;
+      spawnX=830;
+      spawnY=620;
 
       blocks = [
         { x:0,   y:650, width:600, height:520 },
@@ -1971,10 +1591,12 @@
         { x:830, y:260, width:10,  height:50   },
         { x:80,  y:160, width:10,  height:50   },
       ];
+
       mobstacles = [
         { x:650, y:480, width:20,  height:20, sx:750, sy:460, dy:-30 },
         { x:400, y:20,  width:100, height:20, sx:300, sy:200, dx:2   },
       ];
+
       obstacles = [
         { x:600, y:680, width:50, height:150, dy:1, sy:350 },
         { x:750, y:380, width:10, height:40,  dy:1, sy:350 },
@@ -1984,15 +1606,43 @@
         { x:300, y:230, width:10, height:40,  dy:1, sy:220 },
         { x:600, y:130, width:10, height:40,  dx:1, sx:620 },
       ];
-      gate = [{ x:830, y:120, width:30, height:40, mov:false }];
+
+      fgate = [{ x:830, y:120, width:30, height:40, mov:false }];
       keys = [];
+
       diamonds = [
         { x:300, y:340, radius:12, collected:false },
         { x:700, y:140, radius:12, collected:false },
       ];
+
       setTimeout(() => showMsg('LEVEL 3 — Maze!', 4000), 800);
     }
+    if(level==4){
+      ball = { x:-100, y:3000, radius:1, dx:0, dy:0, onGround:false };
+      gravity = 0.5; jumpPower = -12.5;
 
+       blocks = [
+        { x:-100,   y:3000,  width:5100,  height:1000 },
+        {x:-100,   y:2500,  width:50,  height:5000 },
+        {x:5000,   y:2500,  width:50,  height:1000},
+        //blocks
+         { x:-100,   y:2960,  width:5000,  height:20 },
+         { x:50,   y:2890,  width:5000,  height:20 },
+         { x:-100,   y:2790,  width:5000,  height:20 },
+         { x:50,   y:2500,  width:5000,  height:20 },
+       ]
+       obstacles = [
+        { x:50, y:2970, width:4500, height:10 },
+      {x:50, y:2899, width:4500, height:10 },
+        { x:120,   y:2809,  width:4500,  height:10 },
+    ]
+       obstacless = [
+        { x:-300, y:2970, width:35, height:35, dx:5 },
+         { x:-5000, y:2900, width:35, height:35,  dx:6},
+         { x:-10000, y:2870, width:35, height:35, dx:7 },
+      ];
+         setTimeout(() => showMsg('LEVEL 4 — bigger', 4000), 800);
+    }
     updateHUDs();
   }
 </script>
